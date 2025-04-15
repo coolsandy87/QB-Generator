@@ -6,1954 +6,1833 @@
     <title>Question Bank Generator</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .header {
-            background-color: #3b82f6;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        
-        .tab {
-            display: none;
-        }
-        
-        .tab.active {
-            display: block;
-        }
-        
-        .tab-button {
-            cursor: pointer;
-            padding: 10px 20px;
-            border: none;
-            background-color: #e5e7eb;
-            border-radius: 5px 5px 0 0;
-            margin-right: 5px;
-        }
-        
-        .tab-button.active {
-            background-color: #3b82f6;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .tab-button:hover:not(.active) {
-            background-color: #d1d5db;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        
-        th, td {
-            border: 1px solid #e5e7eb;
-            padding: 8px 12px;
-            text-align: left;
-        }
-        
-        th {
-            background-color: #f3f4f6;
-            font-weight: bold;
-        }
-        
-        .unit-container {
-            border: 1px solid #e5e7eb;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            background-color: white;
-        }
-        
-        .question-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: white;
-        }
-        
-        .distribution-form {
-            background-color: white;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        .statistics-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-box {
-            background-color: white;
-            border-radius: 5px;
-            padding: 15px;
-            flex: 1;
-            min-width: 150px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #3b82f6;
-        }
-        
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        .progress-container {
-            width: 100%;
-            background-color: #e5e7eb;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        
-        .progress-bar {
-            height: 20px;
-            border-radius: 5px;
-            background-color: #3b82f6;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            line-height: 20px;
-        }
-        
-        .chart-container {
-            width: 100%;
-            height: 300px;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
-<body>
-    <div class="header">
-        <h1 class="text-2xl font-bold">Question Bank Generator</h1>
-        <p class="text-sm">Generate high-quality, customized questions using AI based on your syllabus and course outcomes</p>
-    </div>
-    
-    <div class="container mx-auto p-4">
-        <!-- Navigation Tabs -->
-        <div class="flex flex-wrap mb-4">
-            <button class="tab-button active" onclick="openTab(event, 'course-details')">1. Course Details</button>
-            <button class="tab-button" onclick="openTab(event, 'api-key')">2. API Key</button>
-            <button class="tab-button" onclick="openTab(event, 'syllabus')">3. Syllabus & Outcomes</button>
-            <button class="tab-button" onclick="openTab(event, 'mapping')">4. Question Mapping</button>
-            <button class="tab-button" onclick="openTab(event, 'distribution')">5. Question Distribution</button>
-            <button class="tab-button" onclick="openTab(event, 'generated')">6. Generated Questions</button>
-        </div>
-        
-        <!-- Tab 1: Course Details -->
-        <div id="course-details" class="tab active">
-            <div class="bg-white rounded-lg p-6 mb-4 shadow-sm">
-                <h2 class="text-xl font-bold mb-4">Course Details</h2>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="course-code">Course Code</label>
-                    <input type="text" id="course-code" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., CS101">
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="course-title">Course Title</label>
-                    <input type="text" id="course-title" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., Introduction to Computer Science">
-                </div>
-                
-                <div class="flex flex-wrap mb-4">
-                    <div class="w-full md:w-1/3 pr-2 mb-4 md:mb-0">
-                        <label class="block text-sm font-medium text-gray-700 mb-1" for="credits">Credits</label>
-                        <input type="number" id="credits" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., 3">
-                    </div>
-                    
-                    <div class="w-full md:w-2/3 pl-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1" for="department">Department</label>
-                        <input type="text" id="department" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., Computer Science">
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="course-description">Course Description</label>
-                    <textarea id="course-description" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="4" placeholder="Briefly describe the course..."></textarea>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="saveCourseData()">Save</button>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="openTab(null, 'api-key')">Next</button>
-                </div>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-blue-600 text-white p-4 rounded-t-lg shadow-md flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold">Question Bank Generator</h1>
+            <div class="flex space-x-2">
+                <button id="saveBtn" class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded-md transition duration-200">
+                    <i class="fas fa-save mr-1"></i> Save
+                </button>
+                <button id="loadBtn" class="bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded-md transition duration-200">
+                    <i class="fas fa-folder-open mr-1"></i> Load
+                </button>
             </div>
-        </div>
+        </header>
         
-        <!-- Tab 2: API Key -->
-        <div id="api-key" class="tab">
-            <div class="bg-white rounded-lg p-6 mb-4 shadow-sm">
-                <h2 class="text-xl font-bold mb-4">API Key Validation</h2>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="api-key-input">Google Gemini 1.5 Pro API Key</label>
-                    <div class="flex">
-                        <input type="password" id="api-key-input" class="w-full px-3 py-2 border border-gray-300 rounded-l-md" placeholder="Enter your API key">
-                        <button id="toggle-api-key" class="px-3 py-2 bg-gray-200 rounded-r-md" onclick="toggleApiKeyVisibility()">
-                            <i class="fas fa-eye"></i>
+        <div class="bg-white rounded-b-lg shadow-md p-4">
+            <p class="text-gray-700 mb-4">Generate high-quality, customized questions using AI based on your syllabus and course outcomes</p>
+            
+            <!-- Tab Navigation -->
+            <div class="flex flex-wrap border-b border-gray-200 mb-6">
+                <button class="tab-btn active px-4 py-2 text-blue-600 border-b-2 border-blue-600" data-tab="courseDetailsTab">1. Course Details</button>
+                <button class="tab-btn px-4 py-2 text-gray-500 hover:text-blue-500" data-tab="apiKeyTab">2. API Key</button>
+                <button class="tab-btn px-4 py-2 text-gray-500 hover:text-blue-500" data-tab="syllabusTab">3. Syllabus & Outcomes</button>
+                <button class="tab-btn px-4 py-2 text-gray-500 hover:text-blue-500" data-tab="questionMappingTab">4. Question Mapping</button>
+                <button class="tab-btn px-4 py-2 text-gray-500 hover:text-blue-500" data-tab="questionDistributionTab">5. Question Distribution</button>
+                <button class="tab-btn px-4 py-2 text-gray-500 hover:text-blue-500" data-tab="generatedQuestionsTab">6. Generated Questions</button>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Course Details Tab -->
+                <div id="courseDetailsTab" class="tab-pane active">
+                    <h2 class="text-xl font-bold mb-4">Course Details</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="mb-4">
+                            <label for="courseCode" class="block text-sm font-medium text-gray-700 mb-1">Course Code</label>
+                            <input type="text" id="courseCode" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="courseTitle" class="block text-sm font-medium text-gray-700 mb-1">Course Title</label>
+                            <input type="text" id="courseTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="credits" class="block text-sm font-medium text-gray-700 mb-1">Credits</label>
+                            <input type="number" id="credits" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                            <input type="text" id="department" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-4 md:col-span-2">
+                            <label for="courseDescription" class="block text-sm font-medium text-gray-700 mb-1">Course Description</label>
+                            <textarea id="courseDescription" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-4">
+                        <button id="courseDetailsNext" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200">
+                            Next <i class="fas fa-arrow-right ml-1"></i>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Your API key is stored locally and never sent to our servers.</p>
                 </div>
                 
-                <div id="api-key-status" class="mb-4 hidden">
-                    <div class="p-3 bg-green-100 text-green-700 rounded-md">
-                        <i class="fas fa-check-circle"></i> API key validated successfully!
-                    </div>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="openTab(null, 'course-details')">Previous</button>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="validateApiKey()">Validate & Continue</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tab 3: Syllabus and Course Outcomes -->
-        <div id="syllabus" class="tab">
-            <div class="bg-white rounded-lg p-6 mb-4 shadow-sm">
-                <h2 class="text-xl font-bold mb-4">Syllabus and Course Outcomes</h2>
-                
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Syllabus Units</h3>
-                    
-                    <div id="units-container">
-                        <div class="unit-container" data-unit="1">
-                            <h4 class="text-md font-semibold mb-2">Unit 1</h4>
-                            
-                            <div class="mb-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="unit-1-title">Unit Title</label>
-                                <input type="text" id="unit-1-title" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., Introduction to Programming">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="unit-1-topics">Topics (one per line)</label>
-                                <textarea id="unit-1-topics" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="4" placeholder="e.g., Variables and Data Types"></textarea>
-                            </div>
+                <!-- API Key Tab -->
+                <div id="apiKeyTab" class="tab-pane hidden">
+                    <h2 class="text-xl font-bold mb-4">API Key Validation</h2>
+                    <div class="mb-4">
+                        <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-1">Google Gemini 1.5 Pro API Key</label>
+                        <div class="flex">
+                            <input type="password" id="apiKey" class="flex-grow px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="toggleApiKey" class="bg-gray-200 px-3 border border-gray-300 border-l-0 rounded-r-md">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
+                        <p class="text-sm text-gray-500 mt-1">Get your API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 hover:underline">Google AI Studio</a></p>
                     </div>
-                    
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 mt-3" onclick="addUnit()">
-                        <i class="fas fa-plus"></i> Add Unit
-                    </button>
-                </div>
-                
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Course Outcomes</h3>
-                    <p class="text-sm text-gray-600 mb-3">Define the expected outcomes that students should achieve after completing this course</p>
-                    
-                    <div id="outcomes-container">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="co1">Course Outcome 1 (CO1)</label>
-                            <textarea id="co1" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="2" placeholder="Description"></textarea>
-                        </div>
-                    </div>
-                    
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="addOutcome()">
-                        <i class="fas fa-plus"></i> Add Outcome
-                    </button>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="openTab(null, 'api-key')">Previous</button>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="saveSyllabusData()">Save & Continue</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tab 4: Question Mapping -->
-        <div id="mapping" class="tab">
-            <div class="bg-white rounded-lg p-6 mb-4 shadow-sm">
-                <h2 class="text-xl font-bold mb-4">Question Mapping</h2>
-                
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Import Question Mapping</h3>
-                    <p class="text-sm text-gray-600 mb-3">Paste your question mapping table. Supported formats: CSV or tab-delimited text with columns for Unit, Question Type, Question No, Marks, Bloom Level, and Course Outcome.</p>
-                    
-                    <textarea id="mapping-import" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="6" placeholder="Paste your mapping table here..."></textarea>
-                    
-                    <div class="flex mt-3">
-                        <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mr-3" onclick="importMapping()">Import</button>
-                        <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="clearMapping()">Clear</button>
+                    <div id="apiKeyStatus" class="mb-4 hidden p-3 rounded-md"></div>
+                    <div class="flex justify-between mt-4">
+                        <button id="apiKeyPrev" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                            <i class="fas fa-arrow-left mr-1"></i> Previous
+                        </button>
+                        <button id="validateApiKey" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-200 mr-4">
+                            Validate Key <i class="fas fa-check ml-1"></i>
+                        </button>
+                        <button id="apiKeyNext" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200">
+                            Next <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
                     </div>
                 </div>
                 
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Mapping Preview</h3>
+                <!-- Syllabus Tab -->
+                <div id="syllabusTab" class="tab-pane hidden">
+                    <h2 class="text-xl font-bold mb-4">Syllabus and Course Outcomes</h2>
                     
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead>
-                                <tr>
-                                    <th>Unit</th>
-                                    <th>Question Type</th>
-                                    <th>Question No</th>
-                                    <th>Marks</th>
-                                    <th>Bloom Level</th>
-                                    <th>Course Outcome</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="mapping-table-body">
-                                <!-- Mapping rows will be added here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-3" onclick="addMappingRow()">
-                        <i class="fas fa-plus"></i> Add Row
-                    </button>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="openTab(null, 'syllabus')">Previous</button>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="openTab(null, 'distribution')">Next</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tab 5: Question Distribution (Fixed Tab) -->
-        <div id="distribution" class="tab">
-            <div class="bg-white rounded-lg p-6 mb-4 shadow-sm">
-                <h2 class="text-xl font-bold mb-4">Question Distribution</h2>
-                
-                <!-- Question Distribution Statistics -->
-                <div class="statistics-panel mb-6">
-                    <div class="stat-box">
-                        <div class="text-sm text-gray-500">Total Marks</div>
-                        <div class="stat-value" id="total-marks">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="text-sm text-gray-500">Total Questions</div>
-                        <div class="stat-value" id="total-questions">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="text-sm text-gray-500">MCQ Percentage</div>
-                        <div class="stat-value" id="mcq-percentage">0%</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="text-sm text-gray-500">Short Answer %</div>
-                        <div class="stat-value" id="short-percentage">0%</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="text-sm text-gray-500">Long Answer %</div>
-                        <div class="stat-value" id="long-percentage">0%</div>
-                    </div>
-                </div>
-                
-                <!-- Add Distribution Row Form -->
-                <div class="distribution-form mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Add Question Distribution</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="dist-unit">Unit</label>
-                            <select id="dist-unit" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                <option value="">Select Unit</option>
-                                <option value="1">Unit 1</option>
-                                <option value="2">Unit 2</option>
-                                <option value="3">Unit 3</option>
-                                <option value="4">Unit 4</option>
-                                <option value="5">Unit 5</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="dist-question-type">Question Type</label>
-                            <select id="dist-question-type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                <option value="">Select Type</option>
-                                <option value="MCQ">Multiple Choice</option>
-                                <option value="Short">Short Answer</option>
-                                <option value="Long">Long Answer</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="dist-num-questions">Number of Questions</label>
-                            <input type="number" id="dist-num-questions" class="w-full px-3 py-2 border border-gray-300 rounded-md" min="1" value="1">
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="dist-marks">Marks per Question</label>
-                            <input type="number" id="dist-marks" class="w-full px-3 py-2 border border-gray-300 rounded-md" min="1" value="1">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="dist-bloom">Bloom Level</label>
-                            <select id="dist-bloom" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                <option value="">Select Level</option>
-                                <option value="Remember">Remember</option>
-                                <option value="Understand">Understand</option>
-                                <option value="Apply">Apply</option>
-                                <option value="Analyze">Analyze</option>
-                                <option value="Evaluate">Evaluate</option>
-                                <option value="Create">Create</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="dist-co">Course Outcome</label>
-                            <select id="dist-co" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                <option value="">Select CO</option>
-                                <option value="CO1">CO1</option>
-                                <option value="CO2">CO2</option>
-                                <option value="CO3">CO3</option>
-                                <option value="CO4">CO4</option>
-                                <option value="CO5">CO5</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="dist-difficulty">Difficulty</label>
-                            <select id="dist-difficulty" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                <option value="">Select Difficulty</option>
-                                <option value="Easy">Easy</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Hard">Hard</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="addDistributionRow()">
-                        <i class="fas fa-plus"></i> Add to Distribution
-                    </button>
-                </div>
-                
-                <!-- Distribution Table -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Question Distribution</h3>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead>
-                                <tr>
-                                    <th>Unit</th>
-                                    <th>Question Type</th>
-                                    <th>Number of Questions</th>
-                                    <th>Marks</th>
-                                    <th>Bloom Level</th>
-                                    <th>Course Outcome</th>
-                                    <th>Difficulty</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="distribution-table-body">
-                                <!-- Distribution rows will be added here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Unit Distribution Visualization -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Unit Distribution</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h4 class="text-md font-medium mb-2">By Question Count</h4>
-                            <div id="unit-question-chart" class="chart-container">
-                                <!-- Unit distribution chart will be rendered here -->
-                                <div id="unit-question-bars">
-                                    <!-- Sample visualization - will be replaced by JS -->
-                                    <div class="mb-2">
-                                        <div class="flex justify-between mb-1">
-                                            <span>Unit 1</span>
-                                            <span>0 questions (0%)</span>
-                                        </div>
-                                        <div class="progress-container">
-                                            <div class="progress-bar" style="width: 0%">0%</div>
-                                        </div>
-                                    </div>
+                    <div class="border-b pb-4 mb-4">
+                        <h3 class="text-lg font-medium mb-3">Syllabus Units</h3>
+                        <div id="unitsContainer">
+                            <div class="unit-item border rounded-md p-4 mb-4">
+                                <h4 class="text-md font-medium mb-2">Unit 1</h4>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Unit Title</label>
+                                    <input type="text" class="unit-title w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Topics (one per line)</label>
+                                    <textarea class="unit-topics w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4"></textarea>
                                 </div>
                             </div>
                         </div>
+                        <button id="addUnitBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition duration-200">
+                            <i class="fas fa-plus mr-1"></i> Add Unit
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-medium mb-3">Course Outcomes</h3>
+                        <p class="text-sm text-gray-600 mb-3">Define the expected outcomes that students should achieve after completing this course</p>
                         
-                        <div>
-                            <h4 class="text-md font-medium mb-2">By Marks</h4>
-                            <div id="unit-marks-chart" class="chart-container">
-                                <!-- Unit distribution chart will be rendered here -->
-                                <div id="unit-marks-bars">
-                                    <!-- Sample visualization - will be replaced by JS -->
-                                    <div class="mb-2">
-                                        <div class="flex justify-between mb-1">
-                                            <span>Unit 1</span>
-                                            <span>0 marks (0%)</span>
-                                        </div>
-                                        <div class="progress-container">
-                                            <div class="progress-bar" style="width: 0%">0%</div>
-                                        </div>
-                                    </div>
+                        <div id="outcomesContainer">
+                            <div class="outcome-item border rounded-md p-4 mb-4">
+                                <h4 class="text-md font-medium mb-2">Course Outcome 1 (CO1)</h4>
+                                <div class="mb-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <textarea class="outcome-description w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
                                 </div>
                             </div>
                         </div>
+                        <button id="addOutcomeBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition duration-200">
+                            <i class="fas fa-plus mr-1"></i> Add Outcome
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-between mt-6">
+                        <button id="syllabusPrev" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                            <i class="fas fa-arrow-left mr-1"></i> Previous
+                        </button>
+                        <button id="syllabusNext" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200">
+                            Next <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
                     </div>
                 </div>
                 
-                <!-- Automatic Distribution -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Automatic Distribution Preview</h3>
-                    <p class="text-sm text-gray-600 mb-3">Based on your syllabus and mappings, here's a suggested question distribution:</p>
+                <!-- Question Mapping Tab -->
+                <div id="questionMappingTab" class="tab-pane hidden">
+                    <h2 class="text-xl font-bold mb-4">Question Mapping</h2>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="auto-total-marks">Total Marks</label>
-                            <input type="number" id="auto-total-marks" class="w-full px-3 py-2 border border-gray-300 rounded-md" min="10" value="100">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-3">Import Question Mapping</h3>
+                        <p class="text-sm text-gray-600 mb-3">Paste your question mapping table. Supported formats: CSV or tab-delimited text with columns for Unit, Question Type, Question No, Marks, Bloom Level, and Course Outcome.</p>
+                        <textarea id="mappingInput" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"></textarea>
+                        <button id="importMappingBtn" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md transition duration-200">
+                            <i class="fas fa-file-import mr-1"></i> Import
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-medium mb-3">Mapping Preview</h3>
+                        <div class="overflow-x-auto">
+                            <table id="mappingTable" class="min-w-full bg-white border border-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Unit</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Question Type</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Question No</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Marks</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Bloom Level</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Course Outcome</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Mapping rows will be added here -->
+                                </tbody>
+                            </table>
                         </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="auto-difficulty">Overall Difficulty</label>
-                            <select id="auto-difficulty" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                <option value="Easy">Easy</option>
-                                <option value="Medium" selected>Medium</option>
-                                <option value="Hard">Hard</option>
-                            </select>
-                        </div>
-                        
-                        <div class="flex items-end">
-                            <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-full" onclick="generateAutomaticDistribution()">
-                                Generate Distribution
+                        <div class="mt-3">
+                            <button id="addMappingRowBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition duration-200">
+                                <i class="fas fa-plus mr-1"></i> Add Row
                             </button>
                         </div>
                     </div>
                     
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead>
-                                <tr>
-                                    <th>Unit</th>
-                                    <th>Question Type</th>
-                                    <th>Number of Questions</th>
-                                    <th>Marks</th>
-                                    <th>Bloom Level</th>
-                                    <th>Course Outcome</th>
-                                    <th>Difficulty</th>
-                                </tr>
-                            </thead>
-                            <tbody id="auto-distribution-table-body">
-                                <!-- Auto-generated distribution rows will be added here -->
-                            </tbody>
-                        </table>
+                    <div class="flex justify-between mt-6">
+                        <button id="mappingPrev" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                            <i class="fas fa-arrow-left mr-1"></i> Previous
+                        </button>
+                        <button id="mappingNext" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200">
+                            Next <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Question Distribution Tab -->
+                <div id="questionDistributionTab" class="tab-pane hidden">
+                    <h2 class="text-xl font-bold mb-4">Question Distribution</h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-6">
+                        <div class="border rounded-md p-4 flex flex-col items-center justify-center bg-gray-50">
+                            <div class="text-4xl font-bold text-blue-600" id="totalMarks">0</div>
+                            <div class="text-sm text-gray-600">Total Marks</div>
+                        </div>
+                        <div class="border rounded-md p-4 flex flex-col items-center justify-center bg-gray-50">
+                            <div class="text-4xl font-bold text-blue-600" id="totalQuestions">0</div>
+                            <div class="text-sm text-gray-600">Total Questions</div>
+                        </div>
+                        <div class="border rounded-md p-4 flex flex-col items-center justify-center bg-gray-50">
+                            <div class="grid grid-cols-3 gap-2 w-full">
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-blue-600" id="mcqPercentage">0%</div>
+                                    <div class="text-xs text-gray-600">MCQ</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-green-600" id="shortAnswerPercentage">0%</div>
+                                    <div class="text-xs text-gray-600">Short Answer</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-purple-600" id="longAnswerPercentage">0%</div>
+                                    <div class="text-xs text-gray-600">Long Answer</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <button class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 mt-3" onclick="applyAutomaticDistribution()">
-                        Apply This Distribution
-                    </button>
+                    <div class="overflow-x-auto mb-6">
+                        <table id="distributionTable" class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Unit</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Question Type</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Number of Questions</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Marks</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Bloom Level</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Course Outcome</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Difficulty</th>
+                                    <th class="px-4 py-2 border bg-gray-100 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Distribution rows will be added here -->
+                            </tbody>
+                        </table>
+                        <div class="mt-3">
+                            <button id="addDistributionRowBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition duration-200">
+                                <i class="fas fa-plus mr-1"></i> Add Row
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-3">Unit Distribution</h3>
+                        <canvas id="unitDistributionChart" class="w-full h-64 border rounded-md p-2"></canvas>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-3">Automatic Distribution Preview</h3>
+                        <div class="flex mb-3">
+                            <div class="mr-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Total Marks</label>
+                                <input type="number" id="autoTotalMarks" value="100" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <button id="generateDistributionBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-200 self-end">
+                                <i class="fas fa-magic mr-1"></i> Generate Distribution
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table id="autoDistributionTable" class="min-w-full bg-white border border-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Unit</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Question Type</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Number of Questions</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Marks</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Bloom Level</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Course Outcome</th>
+                                        <th class="px-4 py-2 border bg-gray-100 text-left">Difficulty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Auto distribution rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <button id="applyAutoDistributionBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition duration-200">
+                                <i class="fas fa-check mr-1"></i> Apply Distribution
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-6">
+                        <button id="distributionPrev" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                            <i class="fas fa-arrow-left mr-1"></i> Previous
+                        </button>
+                        <button id="distributionNext" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200">
+                            Next <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="flex justify-between">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="openTab(null, 'mapping')">Previous</button>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="validateDistribution()">Validate & Continue</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tab 6: Generated Questions -->
-        <div id="generated" class="tab">
-            <div class="bg-white rounded-lg p-6 mb-4 shadow-sm">
-                <h2 class="text-xl font-bold mb-4">Generated Questions</h2>
-                
-                <div class="mb-6">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-lg font-semibold">Filter:</h3>
-                        <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="generateQuestions()">
-                            <i class="fas fa-magic"></i> Generate Questions
+                <!-- Generated Questions Tab -->
+                <div id="generatedQuestionsTab" class="tab-pane hidden">
+                    <h2 class="text-xl font-bold mb-4">Generated Questions</h2>
+                    
+                    <div class="mb-4 flex items-center">
+                        <label class="mr-3">Filter:</label>
+                        <select id="questionFilterUnit" class="mr-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Units</option>
+                        </select>
+                        <select id="questionFilterType" class="mr-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Types</option>
+                            <option value="MCQ">MCQ</option>
+                            <option value="Short Answer">Short Answer</option>
+                            <option value="Long Answer">Long Answer</option>
+                        </select>
+                        <button id="generateQuestionsBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-200 ml-auto">
+                            <i class="fas fa-cog fa-spin hidden" id="generateSpinner"></i>
+                            <span id="generateBtnText"><i class="fas fa-play mr-1"></i> Generate Questions</span>
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="filter-unit">Unit</label>
-                            <select id="filter-unit" class="w-full px-3 py-2 border border-gray-300 rounded-md" onchange="filterQuestions()">
-                                <option value="">All Units</option>
-                                <option value="1">Unit 1</option>
-                                <option value="2">Unit 2</option>
-                                <option value="3">Unit 3</option>
-                                <option value="4">Unit 4</option>
-                                <option value="5">Unit 5</option>
-                            </select>
+                    <div id="generationProgress" class="hidden mb-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
                         </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="filter-type">Question Type</label>
-                            <select id="filter-type" class="w-full px-3 py-2 border border-gray-300 rounded-md" onchange="filterQuestions()">
-                                <option value="">All Types</option>
-                                <option value="MCQ">Multiple Choice</option>
-                                <option value="Short">Short Answer</option>
-                                <option value="Long">Long Answer</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="filter-bloom">Bloom Level</label>
-                            <select id="filter-bloom" class="w-full px-3 py-2 border border-gray-300 rounded-md" onchange="filterQuestions()">
-                                <option value="">All Levels</option>
-                                <option value="Remember">Remember</option>
-                                <option value="Understand">Understand</option>
-                                <option value="Apply">Apply</option>
-                                <option value="Analyze">Analyze</option>
-                                <option value="Evaluate">Evaluate</option>
-                                <option value="Create">Create</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="filter-co">Course Outcome</label>
-                            <select id="filter-co" class="w-full px-3 py-2 border border-gray-300 rounded-md" onchange="filterQuestions()">
-                                <option value="">All COs</option>
-                                <option value="CO1">CO1</option>
-                                <option value="CO2">CO2</option>
-                                <option value="CO3">CO3</option>
-                                <option value="CO4">CO4</option>
-                                <option value="CO5">CO5</option>
-                            </select>
+                        <p class="text-sm text-gray-600 mt-1" id="progressText">Generating questions: 0/0</p>
+                    </div>
+                    
+                    <div id="questionsContainer" class="space-y-4">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                            <p class="text-yellow-700">Questions will appear here after generation.</p>
+                            <p class="text-yellow-700 text-sm">Make sure you have filled in all the required information in previous sections.</p>
                         </div>
                     </div>
-                </div>
-                
-                <div id="questions-container" class="mb-6">
-                    <p class="text-center text-gray-500 py-8">Questions will appear here after generation.</p>
-                    <p class="text-center text-gray-500">Make sure you have filled in all the required information in previous sections.</p>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" onclick="openTab(null, 'distribution')">Previous</button>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="exportQuestions()">Export Questions</button>
+                    
+                    <div class="flex justify-between mt-6">
+                        <button id="generatedQuestionsPrev" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                            <i class="fas fa-arrow-left mr-1"></i> Previous
+                        </button>
+                        <button id="exportQuestionsBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-200">
+                            <i class="fas fa-file-export mr-1"></i> Export Questions
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+        
+        <footer class="text-center text-gray-500 text-sm mt-6">
+            <p>Made with ❤️ by GenSpark</p>
+        </footer>
     </div>
     
+    <!-- Load Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
     <script>
-        // Global variables
-        let courseData = {};
-        let syllabusData = { units: [], outcomes: [] };
-        let mappingData = [];
-        let distributionData = [];
-        let generatedQuestions = [];
-        let apiKey = "";
+        // State management
+        const appState = {
+            courseDetails: {
+                courseCode: '',
+                courseTitle: '',
+                credits: '',
+                department: '',
+                courseDescription: ''
+            },
+            apiKey: '',
+            apiKeyValidated: false,
+            units: [{ title: '', topics: '' }],
+            outcomes: [{ description: '' }],
+            mappingRows: [],
+            distributionRows: [],
+            autoDistribution: [],
+            generatedQuestions: []
+        };
         
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load any saved data from localStorage
-            loadSavedData();
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initTabs();
+            initCourseDetailsForm();
+            initApiKeyValidation();
+            initSyllabusAndOutcomes();
+            initQuestionMapping();
+            initQuestionDistribution();
+            initGeneratedQuestions();
+            initCharts();
+            loadStateFromLocalStorage();
             
-            // Update the dropdowns based on units and outcomes
-            updateUnitDropdowns();
-            updateOutcomeDropdowns();
-            
-            // Initialize the distribution statistics
-            updateDistributionStats();
+            // Initialize save and load buttons
+            document.getElementById('saveBtn').addEventListener('click', saveStateToLocalStorage);
+            document.getElementById('loadBtn').addEventListener('click', loadStateFromLocalStorage);
         });
         
-        // Tab navigation function
-        function openTab(evt, tabId) {
-            // Hide all tabs
-            const tabs = document.getElementsByClassName("tab");
-            for (let i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove("active");
-            }
+        // Tab functionality
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
             
-            // Deactivate all tab buttons
-            const tabButtons = document.getElementsByClassName("tab-button");
-            for (let i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove("active");
-            }
-            
-            // Show the selected tab
-            document.getElementById(tabId).classList.add("active");
-            
-            // Activate the clicked button (if provided)
-            if (evt) {
-                evt.currentTarget.classList.add("active");
-            } else {
-                // Find and activate the corresponding tab button
-                for (let i = 0; i < tabButtons.length; i++) {
-                    if (tabButtons[i].getAttribute("onclick").includes(tabId)) {
-                        tabButtons[i].classList.add("active");
-                        break;
-                    }
-                }
-            }
-            
-            // Special actions for specific tabs
-            if (tabId === "distribution") {
-                updateDistributionStats();
-                updateUnitCharts();
-            }
-        }
-        
-        // Save course data
-        function saveCourseData() {
-            courseData = {
-                code: document.getElementById("course-code").value,
-                title: document.getElementById("course-title").value,
-                credits: document.getElementById("credits").value,
-                department: document.getElementById("department").value,
-                description: document.getElementById("course-description").value
-            };
-            
-            localStorage.setItem("qbg_course_data", JSON.stringify(courseData));
-            showToast("Course data saved successfully!");
-        }
-        
-        // Toggle API key visibility
-        function toggleApiKeyVisibility() {
-            const apiKeyInput = document.getElementById("api-key-input");
-            const toggleButton = document.getElementById("toggle-api-key").querySelector("i");
-            
-            if (apiKeyInput.type === "password") {
-                apiKeyInput.type = "text";
-                toggleButton.classList.remove("fa-eye");
-                toggleButton.classList.add("fa-eye-slash");
-            } else {
-                apiKeyInput.type = "password";
-                toggleButton.classList.remove("fa-eye-slash");
-                toggleButton.classList.add("fa-eye");
-            }
-        }
-        
-        // Validate API key
-        function validateApiKey() {
-            apiKey = document.getElementById("api-key-input").value.trim();
-            
-            if (apiKey) {
-                // In a real application, you would validate the API key against the Google Gemini API
-                // For this example, we'll just accept any non-empty string
-                document.getElementById("api-key-status").classList.remove("hidden");
-                localStorage.setItem("qbg_api_key", apiKey);
-                
-                // Proceed to next tab after a short delay
-                setTimeout(() => {
-                    openTab(null, "syllabus");
-                }, 1000);
-            } else {
-                alert("Please enter a valid API key.");
-            }
-        }
-        
-        // Add unit to syllabus
-        function addUnit() {
-            const unitsContainer = document.getElementById("units-container");
-            const unitCount = unitsContainer.children.length + 1;
-            
-            const unitHtml = `
-                <div class="unit-container" data-unit="${unitCount}">
-                    <h4 class="text-md font-semibold mb-2">Unit ${unitCount}</h4>
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
                     
-                    <div class="mb-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-1" for="unit-${unitCount}-title">Unit Title</label>
-                        <input type="text" id="unit-${unitCount}-title" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., Introduction to Programming">
-                    </div>
+                    // Hide all tab panes
+                    tabPanes.forEach(pane => pane.classList.add('hidden'));
                     
-                    <div class="mb-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-1" for="unit-${unitCount}-topics">Topics (one per line)</label>
-                        <textarea id="unit-${unitCount}-topics" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="4" placeholder="e.g., Variables and Data Types"></textarea>
-                    </div>
-                </div>
-            `;
-            
-            unitsContainer.insertAdjacentHTML("beforeend", unitHtml);
-            updateUnitDropdowns();
-        }
-        
-        // Add course outcome
-        function addOutcome() {
-            const outcomesContainer = document.getElementById("outcomes-container");
-            const outcomeCount = outcomesContainer.children.length + 1;
-            
-            const outcomeHtml = `
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="co${outcomeCount}">Course Outcome ${outcomeCount} (CO${outcomeCount})</label>
-                    <textarea id="co${outcomeCount}" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="2" placeholder="Description"></textarea>
-                </div>
-            `;
-            
-            outcomesContainer.insertAdjacentHTML("beforeend", outcomeHtml);
-            updateOutcomeDropdowns();
-        }
-        
-        // Save syllabus data
-        function saveSyllabusData() {
-            // Get units
-            syllabusData.units = [];
-            const unitContainers = document.querySelectorAll("#units-container .unit-container");
-            
-            unitContainers.forEach(container => {
-                const unitNumber = container.getAttribute("data-unit");
-                const unitTitle = document.getElementById(`unit-${unitNumber}-title`).value;
-                const unitTopics = document.getElementById(`unit-${unitNumber}-topics`).value;
-                
-                syllabusData.units.push({
-                    number: unitNumber,
-                    title: unitTitle,
-                    topics: unitTopics.split("\n").filter(topic => topic.trim() !== "")
-                });
-            });
-            
-            // Get outcomes
-            syllabusData.outcomes = [];
-            const outcomeCount = document.getElementById("outcomes-container").children.length;
-            
-            for (let i = 1; i <= outcomeCount; i++) {
-                const outcomeText = document.getElementById(`co${i}`).value;
-                
-                if (outcomeText.trim() !== "") {
-                    syllabusData.outcomes.push({
-                        number: i,
-                        code: `CO${i}`,
-                        description: outcomeText
+                    // Show target tab pane
+                    document.getElementById(targetTab).classList.remove('hidden');
+                    
+                    // Update active state on buttons
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'text-blue-600', 'border-b-2', 'border-blue-600');
+                        btn.classList.add('text-gray-500');
                     });
+                    
+                    button.classList.add('active', 'text-blue-600', 'border-b-2', 'border-blue-600');
+                    button.classList.remove('text-gray-500');
+                });
+            });
+            
+            // Set up next/previous buttons
+            document.getElementById('courseDetailsNext').addEventListener('click', () => {
+                saveCourseDetails();
+                activateTab('apiKeyTab');
+            });
+            
+            document.getElementById('apiKeyPrev').addEventListener('click', () => {
+                activateTab('courseDetailsTab');
+            });
+            
+            document.getElementById('apiKeyNext').addEventListener('click', () => {
+                saveApiKey();
+                activateTab('syllabusTab');
+            });
+            
+            document.getElementById('syllabusPrev').addEventListener('click', () => {
+                activateTab('apiKeyTab');
+            });
+            
+            document.getElementById('syllabusNext').addEventListener('click', () => {
+                saveSyllabusAndOutcomes();
+                activateTab('questionMappingTab');
+            });
+            
+            document.getElementById('mappingPrev').addEventListener('click', () => {
+                activateTab('syllabusTab');
+            });
+            
+            document.getElementById('mappingNext').addEventListener('click', () => {
+                saveMapping();
+                activateTab('questionDistributionTab');
+            });
+            
+            document.getElementById('distributionPrev').addEventListener('click', () => {
+                activateTab('questionMappingTab');
+            });
+            
+            document.getElementById('distributionNext').addEventListener('click', () => {
+                saveDistribution();
+                activateTab('generatedQuestionsTab');
+            });
+            
+            document.getElementById('generatedQuestionsPrev').addEventListener('click', () => {
+                activateTab('questionDistributionTab');
+            });
+        }
+        
+        function activateTab(tabId) {
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).click();
+        }
+        
+        // Course Details functionality
+        function initCourseDetailsForm() {
+            // Input field references and event listeners
+            const courseCodeInput = document.getElementById('courseCode');
+            const courseTitleInput = document.getElementById('courseTitle');
+            const creditsInput = document.getElementById('credits');
+            const departmentInput = document.getElementById('department');
+            const courseDescriptionInput = document.getElementById('courseDescription');
+            
+            // Add event listeners to update state in real-time
+            [courseCodeInput, courseTitleInput, creditsInput, departmentInput, courseDescriptionInput].forEach(input => {
+                input.addEventListener('input', saveCourseDetails);
+            });
+        }
+        
+        function saveCourseDetails() {
+            appState.courseDetails = {
+                courseCode: document.getElementById('courseCode').value,
+                courseTitle: document.getElementById('courseTitle').value,
+                credits: document.getElementById('credits').value,
+                department: document.getElementById('department').value,
+                courseDescription: document.getElementById('courseDescription').value
+            };
+        }
+        
+        // API Key functionality
+        function initApiKeyValidation() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const toggleApiKeyBtn = document.getElementById('toggleApiKey');
+            const validateApiKeyBtn = document.getElementById('validateApiKey');
+            const apiKeyStatus = document.getElementById('apiKeyStatus');
+            
+            toggleApiKeyBtn.addEventListener('click', () => {
+                const type = apiKeyInput.type === 'password' ? 'text' : 'password';
+                apiKeyInput.type = type;
+                toggleApiKeyBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+            
+            validateApiKeyBtn.addEventListener('click', async () => {
+                const apiKey = apiKeyInput.value.trim();
+                
+                if (!apiKey) {
+                    showApiKeyStatus('Please enter an API key', 'error');
+                    return;
                 }
+                
+                showApiKeyStatus('Validating API key...', 'info');
+                
+                try {
+                    const isValid = await validateGeminiApiKey(apiKey);
+                    
+                    if (isValid) {
+                        appState.apiKey = apiKey;
+                        appState.apiKeyValidated = true;
+                        showApiKeyStatus('API key is valid!', 'success');
+                    } else {
+                        appState.apiKeyValidated = false;
+                        showApiKeyStatus('Invalid API key. Please check and try again.', 'error');
+                    }
+                } catch (error) {
+                    console.error('API key validation error:', error);
+                    appState.apiKeyValidated = false;
+                    showApiKeyStatus('Error validating API key: ' + error.message, 'error');
+                }
+            });
+            
+            apiKeyInput.addEventListener('input', saveApiKey);
+        }
+        
+        async function validateGeminiApiKey(apiKey) {
+            try {
+                // Simple validation check with Gemini API
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro?key=${apiKey}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                // If we get the model details without an error, the key is valid
+                return response.ok && data && data.name === 'models/gemini-1.5-pro';
+            } catch (error) {
+                console.error('API validation error:', error);
+                return false;
+            }
+        }
+        
+        function showApiKeyStatus(message, type) {
+            const apiKeyStatus = document.getElementById('apiKeyStatus');
+            apiKeyStatus.textContent = message;
+            apiKeyStatus.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-blue-100', 'text-blue-700');
+            
+            switch (type) {
+                case 'success':
+                    apiKeyStatus.classList.add('bg-green-100', 'text-green-700');
+                    break;
+                case 'error':
+                    apiKeyStatus.classList.add('bg-red-100', 'text-red-700');
+                    break;
+                case 'info':
+                    apiKeyStatus.classList.add('bg-blue-100', 'text-blue-700');
+                    break;
+            }
+            apiKeyStatus.classList.remove('hidden');
+        }
+        
+        function saveApiKey() {
+            appState.apiKey = document.getElementById('apiKey').value;
+        }
+        
+        // Syllabus and Outcomes functionality
+        function initSyllabusAndOutcomes() {
+            const addUnitBtn = document.getElementById('addUnitBtn');
+            const addOutcomeBtn = document.getElementById('addOutcomeBtn');
+            
+            addUnitBtn.addEventListener('click', () => {
+                const unitNumber = document.querySelectorAll('.unit-item').length + 1;
+                const unitItem = createUnitItem(unitNumber);
+                document.getElementById('unitsContainer').appendChild(unitItem);
+                
+                appState.units.push({ title: '', topics: '' });
+                
+                // Add event listeners to new inputs
+                attachUnitEventListeners(unitItem, appState.units.length - 1);
+            });
+            
+            addOutcomeBtn.addEventListener('click', () => {
+                const outcomeNumber = document.querySelectorAll('.outcome-item').length + 1;
+                const outcomeItem = createOutcomeItem(outcomeNumber);
+                document.getElementById('outcomesContainer').appendChild(outcomeItem);
+                
+                appState.outcomes.push({ description: '' });
+                
+                // Add event listeners to new inputs
+                attachOutcomeEventListeners(outcomeItem, appState.outcomes.length - 1);
+            });
+            
+            // Attach event listeners to initial unit and outcome
+            attachUnitEventListeners(document.querySelector('.unit-item'), 0);
+            attachOutcomeEventListeners(document.querySelector('.outcome-item'), 0);
+        }
+        
+        function createUnitItem(unitNumber) {
+            const unitItem = document.createElement('div');
+            unitItem.className = 'unit-item border rounded-md p-4 mb-4';
+            unitItem.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-md font-medium">Unit ${unitNumber}</h4>
+                    ${unitNumber > 1 ? '<button class="remove-unit text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>' : ''}
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Unit Title</label>
+                    <input type="text" class="unit-title w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Topics (one per line)</label>
+                    <textarea class="unit-topics w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4"></textarea>
+                </div>
+            `;
+            
+            // Add remove functionality if not the first unit
+            if (unitNumber > 1) {
+                const removeBtn = unitItem.querySelector('.remove-unit');
+                removeBtn.addEventListener('click', () => {
+                    unitItem.remove();
+                    appState.units.splice(unitNumber - 1, 1);
+                    renumberUnits();
+                });
             }
             
-            localStorage.setItem("qbg_syllabus_data", JSON.stringify(syllabusData));
-            showToast("Syllabus data saved successfully!");
-            
-            // Update the dropdowns
-            updateUnitDropdowns();
-            updateOutcomeDropdowns();
-            
-            // Move to next tab
-            openTab(null, "mapping");
+            return unitItem;
         }
         
-        // Update unit dropdowns throughout the application
-        function updateUnitDropdowns() {
-            // Get all unit selects
-            const unitSelects = document.querySelectorAll('select[id$="-unit"]');
+        function createOutcomeItem(outcomeNumber) {
+            const outcomeItem = document.createElement('div');
+            outcomeItem.className = 'outcome-item border rounded-md p-4 mb-4';
+            outcomeItem.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-md font-medium">Course Outcome ${outcomeNumber} (CO${outcomeNumber})</h4>
+                    ${outcomeNumber > 1 ? '<button class="remove-outcome text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>' : ''}
+                </div>
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea class="outcome-description w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
+                </div>
+            `;
             
-            // Clear and repopulate each select
-            unitSelects.forEach(select => {
-                // Save the current value
-                const currentValue = select.value;
-                
-                // Clear options except the first one (which is usually "Select Unit" or "All Units")
-                const firstOption = select.options[0];
-                select.innerHTML = '';
-                select.appendChild(firstOption);
-                
-                // Add units from syllabusData or use a default set if none available
-                const units = syllabusData.units.length > 0 ? syllabusData.units : [
-                    { number: 1, title: "Unit 1" },
-                    { number: 2, title: "Unit 2" },
-                    { number: 3, title: "Unit 3" },
-                    { number: 4, title: "Unit 4" },
-                    { number: 5, title: "Unit 5" }
-                ];
-                
-                units.forEach(unit => {
-                    const option = document.createElement("option");
-                    option.value = unit.number;
-                    option.textContent = `Unit ${unit.number}: ${unit.title || ''}`;
-                    select.appendChild(option);
+            // Add remove functionality if not the first outcome
+            if (outcomeNumber > 1) {
+                const removeBtn = outcomeItem.querySelector('.remove-outcome');
+                removeBtn.addEventListener('click', () => {
+                    outcomeItem.remove();
+                    appState.outcomes.splice(outcomeNumber - 1, 1);
+                    renumberOutcomes();
                 });
-                
-                // Restore the previous value if it still exists
-                if (currentValue) {
-                    select.value = currentValue;
-                }
+            }
+            
+            return outcomeItem;
+        }
+        
+        function attachUnitEventListeners(unitItem, index) {
+            const titleInput = unitItem.querySelector('.unit-title');
+            const topicsInput = unitItem.querySelector('.unit-topics');
+            
+            titleInput.addEventListener('input', () => {
+                appState.units[index].title = titleInput.value;
+            });
+            
+            topicsInput.addEventListener('input', () => {
+                appState.units[index].topics = topicsInput.value;
             });
         }
         
-        // Update course outcome dropdowns throughout the application
-        function updateOutcomeDropdowns() {
-            // Get all course outcome selects
-            const coSelects = document.querySelectorAll('select[id$="-co"]');
+        function attachOutcomeEventListeners(outcomeItem, index) {
+            const descriptionInput = outcomeItem.querySelector('.outcome-description');
             
-            // Clear and repopulate each select
-            coSelects.forEach(select => {
-                // Save the current value
-                const currentValue = select.value;
-                
-                // Clear options except the first one
-                const firstOption = select.options[0];
-                select.innerHTML = '';
-                select.appendChild(firstOption);
-                
-                // Add outcomes from syllabusData or use a default set if none available
-                const outcomes = syllabusData.outcomes.length > 0 ? syllabusData.outcomes : [
-                    { number: 1, code: "CO1" },
-                    { number: 2, code: "CO2" },
-                    { number: 3, code: "CO3" },
-                    { number: 4, code: "CO4" },
-                    { number: 5, code: "CO5" }
-                ];
-                
-                outcomes.forEach(outcome => {
-                    const option = document.createElement("option");
-                    option.value = outcome.code;
-                    option.textContent = outcome.code;
-                    select.appendChild(option);
-                });
-                
-                // Restore the previous value if it still exists
-                if (currentValue) {
-                    select.value = currentValue;
-                }
+            descriptionInput.addEventListener('input', () => {
+                appState.outcomes[index].description = descriptionInput.value;
             });
         }
         
-        // Import mapping data from text
-        function importMapping() {
-            const mappingText = document.getElementById("mapping-import").value.trim();
+        function renumberUnits() {
+            const unitItems = document.querySelectorAll('.unit-item');
+            unitItems.forEach((item, index) => {
+                const heading = item.querySelector('h4');
+                heading.textContent = `Unit ${index + 1}`;
+            });
+        }
+        
+        function renumberOutcomes() {
+            const outcomeItems = document.querySelectorAll('.outcome-item');
+            outcomeItems.forEach((item, index) => {
+                const heading = item.querySelector('h4');
+                heading.textContent = `Course Outcome ${index + 1} (CO${index + 1})`;
+            });
+        }
+        
+        function saveSyllabusAndOutcomes() {
+            const unitItems = document.querySelectorAll('.unit-item');
+            appState.units = Array.from(unitItems).map(item => ({
+                title: item.querySelector('.unit-title').value,
+                topics: item.querySelector('.unit-topics').value
+            }));
             
-            if (!mappingText) {
-                alert("Please paste mapping data first.");
+            const outcomeItems = document.querySelectorAll('.outcome-item');
+            appState.outcomes = Array.from(outcomeItems).map(item => ({
+                description: item.querySelector('.outcome-description').value
+            }));
+        }
+        
+        // Question Mapping functionality
+        function initQuestionMapping() {
+            const importMappingBtn = document.getElementById('importMappingBtn');
+            const addMappingRowBtn = document.getElementById('addMappingRowBtn');
+            
+            importMappingBtn.addEventListener('click', importMappingData);
+            addMappingRowBtn.addEventListener('click', () => addMappingRow());
+        }
+        
+        function importMappingData() {
+            const mappingInput = document.getElementById('mappingInput').value.trim();
+            
+            if (!mappingInput) {
+                showNotification('Please enter mapping data to import', 'error');
                 return;
             }
             
             try {
-                // Split by lines
-                const lines = mappingText.split("\n");
+                // Determine if it's CSV or tab-delimited
+                const delimiter = mappingInput.includes('\t') ? '\t' : ',';
+                const lines = mappingInput.split('\n');
                 
-                // Check if it's CSV or tab-delimited
-                const delimiter = lines[0].includes(',') ? ',' : '\t';
+                // Skip header row if it exists
+                const startRow = lines[0].toLowerCase().includes('unit') ? 1 : 0;
                 
-                // Process each line
-                mappingData = [];
+                const mappingRows = [];
                 
-                lines.forEach((line, index) => {
-                    if (line.trim() === '') return;
+                for (let i = startRow; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
                     
                     const columns = line.split(delimiter);
                     
-                    // Skip header row if present
-                    if (index === 0 && isNaN(columns[0]) && isNaN(columns[2]) && isNaN(columns[3])) {
-                        return;
+                    if (columns.length < 6) {
+                        throw new Error(`Line ${i+1} has fewer than 6 columns. Expected: Unit, Question Type, Question No, Marks, Bloom Level, Course Outcome`);
                     }
                     
-                    if (columns.length >= 6) {
-                        mappingData.push({
-                            id: Date.now() + index,
-                            unit: columns[0].trim(),
-                            questionType: columns[1].trim(),
-                            questionNo: columns[2].trim(),
-                            marks: columns[3].trim(),
-                            bloomLevel: columns[4].trim(),
-                            courseOutcome: columns[5].trim()
-                        });
+                    mappingRows.push({
+                        unit: columns[0].trim(),
+                        questionType: columns[1].trim(),
+                        questionNo: columns[2].trim(),
+                        marks: columns[3].trim(),
+                        bloomLevel: columns[4].trim(),
+                        courseOutcome: columns[5].trim()
+                    });
+                }
+                
+                // Clear existing rows
+                document.querySelector('#mappingTable tbody').innerHTML = '';
+                appState.mappingRows = [];
+                
+                // Add imported rows
+                mappingRows.forEach(row => addMappingRow(row));
+                
+                showNotification(`Successfully imported ${mappingRows.length} mapping rows`, 'success');
+            } catch (error) {
+                console.error('Import error:', error);
+                showNotification('Error importing mapping data: ' + error.message, 'error');
+            }
+        }
+        
+        function addMappingRow(data = null) {
+            const tableBody = document.querySelector('#mappingTable tbody');
+            const row = document.createElement('tr');
+            
+            const rowData = data || {
+                unit: '',
+                questionType: '',
+                questionNo: '',
+                marks: '',
+                bloomLevel: '',
+                courseOutcome: ''
+            };
+            
+            row.innerHTML = `
+                <td class="px-4 py-2 border">
+                    <input type="text" class="mapping-unit w-full px-2 py-1 border border-gray-300 rounded-md" value="${rowData.unit}">
+                </td>
+                <td class="px-4 py-2 border">
+                    <select class="mapping-question-type w-full px-2 py-1 border border-gray-300 rounded-md">
+                        <option value="MCQ" ${rowData.questionType === 'MCQ' ? 'selected' : ''}>MCQ</option>
+                        <option value="Short Answer" ${rowData.questionType === 'Short Answer' ? 'selected' : ''}>Short Answer</option>
+                        <option value="Long Answer" ${rowData.questionType === 'Long Answer' ? 'selected' : ''}>Long Answer</option>
+                    </select>
+                </td>
+                <td class="px-4 py-2 border">
+                    <input type="text" class="mapping-question-no w-full px-2 py-1 border border-gray-300 rounded-md" value="${rowData.questionNo}">
+                </td>
+                <td class="px-4 py-2 border">
+                    <input type="number" class="mapping-marks w-full px-2 py-1 border border-gray-300 rounded-md" value="${rowData.marks}">
+                </td>
+                <td class="px-4 py-2 border">
+                    <select class="mapping-bloom-level w-full px-2 py-1 border border-gray-300 rounded-md">
+                        <option value="Remember" ${rowData.bloomLevel === 'Remember' ? 'selected' : ''}>Remember</option>
+                        <option value="Understand" ${rowData.bloomLevel === 'Understand' ? 'selected' : ''}>Understand</option>
+                        <option value="Apply" ${rowData.bloomLevel === 'Apply' ? 'selected' : ''}>Apply</option>
+                        <option value="Analyze" ${rowData.bloomLevel === 'Analyze' ? 'selected' : ''}>Analyze</option>
+                        <option value="Evaluate" ${rowData.bloomLevel === 'Evaluate' ? 'selected' : ''}>Evaluate</option>
+                        <option value="Create" ${rowData.bloomLevel === 'Create' ? 'selected' : ''}>Create</option>
+                    </select>
+                </td>
+                <td class="px-4 py-2 border">
+                    <input type="text" class="mapping-course-outcome w-full px-2 py-1 border border-gray-300 rounded-md" value="${rowData.courseOutcome}">
+                </td>
+                <td class="px-4 py-2 border">
+                    <button class="delete-mapping-row text-red-500 hover:text-red-700">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+            
+            // Add delete functionality
+            row.querySelector('.delete-mapping-row').addEventListener('click', () => {
+                const index = Array.from(tableBody.children).indexOf(row);
+                row.remove();
+                appState.mappingRows.splice(index, 1);
+                updateMappingState();
+            });
+            
+            // Add event listeners to update state on change
+            row.querySelectorAll('input, select').forEach(input => {
+                input.addEventListener('change', updateMappingState);
+            });
+            
+            tableBody.appendChild(row);
+            
+            // Update the state with the new row
+            if (!data) {
+                appState.mappingRows.push(rowData);
+            } else {
+                appState.mappingRows.push(rowData);
+            }
+        }
+        
+        function updateMappingState() {
+            const rows = document.querySelectorAll('#mappingTable tbody tr');
+            appState.mappingRows = Array.from(rows).map(row => ({
+                unit: row.querySelector('.mapping-unit').value,
+                questionType: row.querySelector('.mapping-question-type').value,
+                questionNo: row.querySelector('.mapping-question-no').value,
+                marks: row.querySelector('.mapping-marks').value,
+                bloomLevel: row.querySelector('.mapping-bloom-level').value,
+                courseOutcome: row.querySelector('.mapping-course-outcome').value
+            }));
+        }
+        
+        function saveMapping() {
+            updateMappingState();
+            // Update question filter in the generated questions tab
+            updateQuestionFilters();
+        }
+        
+        // Question Distribution functionality
+        function initQuestionDistribution() {
+            const addDistributionRowBtn = document.getElementById('addDistributionRowBtn');
+            const generateDistributionBtn = document.getElementById('generateDistributionBtn');
+            const applyAutoDistributionBtn = document.getElementById('applyAutoDistributionBtn');
+            
+            addDistributionRowBtn.addEventListener('click', () => addDistributionRow());
+            generateDistributionBtn.addEventListener('click', generateAutoDistribution);
+            applyAutoDistributionBtn.addEventListener('click', applyAutoDistribution);
+        }
+        
+        function addDistributionRow(data = null) {
+            const tableBody = document.querySelector('#distributionTable tbody');
+            const row = document.createElement('tr');
+            
+            const rowData = data || {
+                unit: '',
+                questionType: 'MCQ',
+                numQuestions: '1',
+                marks: '1',
+                bloomLevel: 'Remember',
+                courseOutcome: 'CO1',
+                difficulty: 'Easy'
+            };
+            
+            // Get unit options from the syllabus
+            const unitOptions = appState.units.map((unit, index) => {
+                const unitName = unit.title || `Unit ${index + 1}`;
+                return `<option value="Unit ${index + 1}" ${rowData.unit === `Unit ${index + 1}` ? 'selected' : ''}>${unitName}</option>`;
+            }).join('');
+            
+            // Get course outcome options
+            const coOptions = appState.outcomes.map((outcome, index) => {
+                return `<option value="CO${index + 1}" ${rowData.courseOutcome === `CO${index + 1}` ? 'selected' : ''}>CO${index + 1}</option>`;
+            }).join('');
+            
+            row.innerHTML = `
+                <td class="px-4 py-2 border">
+                    <select class="dist-unit w-full px-2 py-1 border border-gray-300 rounded-md">
+                        ${unitOptions}
+                    </select>
+                </td>
+                <td class="px-4 py-2 border">
+                    <select class="dist-question-type w-full px-2 py-1 border border-gray-300 rounded-md">
+                        <option value="MCQ" ${rowData.questionType === 'MCQ' ? 'selected' : ''}>MCQ</option>
+                        <option value="Short Answer" ${rowData.questionType === 'Short Answer' ? 'selected' : ''}>Short Answer</option>
+                        <option value="Long Answer" ${rowData.questionType === 'Long Answer' ? 'selected' : ''}>Long Answer</option>
+                    </select>
+                </td>
+                <td class="px-4 py-2 border">
+                    <input type="number" class="dist-num-questions w-full px-2 py-1 border border-gray-300 rounded-md" value="${rowData.numQuestions}" min="1">
+                </td>
+                <td class="px-4 py-2 border">
+                    <input type="number" class="dist-marks w-full px-2 py-1 border border-gray-300 rounded-md" value="${rowData.marks}" min="1">
+                </td>
+                <td class="px-4 py-2 border">
+                    <select class="dist-bloom-level w-full px-2 py-1 border border-gray-300 rounded-md">
+                        <option value="Remember" ${rowData.bloomLevel === 'Remember' ? 'selected' : ''}>Remember</option>
+                        <option value="Understand" ${rowData.bloomLevel === 'Understand' ? 'selected' : ''}>Understand</option>
+                        <option value="Apply" ${rowData.bloomLevel === 'Apply' ? 'selected' : ''}>Apply</option>
+                        <option value="Analyze" ${rowData.bloomLevel === 'Analyze' ? 'selected' : ''}>Analyze</option>
+                        <option value="Evaluate" ${rowData.bloomLevel === 'Evaluate' ? 'selected' : ''}>Evaluate</option>
+                        <option value="Create" ${rowData.bloomLevel === 'Create' ? 'selected' : ''}>Create</option>
+                    </select>
+                </td>
+                <td class="px-4 py-2 border">
+                    <select class="dist-course-outcome w-full px-2 py-1 border border-gray-300 rounded-md">
+                        ${coOptions}
+                    </select>
+                </td>
+                <td class="px-4 py-2 border">
+                    <select class="dist-difficulty w-full px-2 py-1 border border-gray-300 rounded-md">
+                        <option value="Easy" ${rowData.difficulty === 'Easy' ? 'selected' : ''}>Easy</option>
+                        <option value="Medium" ${rowData.difficulty === 'Medium' ? 'selected' : ''}>Medium</option>
+                        <option value="Hard" ${rowData.difficulty === 'Hard' ? 'selected' : ''}>Hard</option>
+                    </select>
+                </td>
+                <td class="px-4 py-2 border">
+                    <button class="delete-dist-row text-red-500 hover:text-red-700">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+            
+            // Add delete functionality
+            row.querySelector('.delete-dist-row').addEventListener('click', () => {
+                const index = Array.from(tableBody.children).indexOf(row);
+                row.remove();
+                appState.distributionRows.splice(index, 1);
+                updateDistributionState();
+                updateDistributionStats();
+                updateDistributionChart();
+            });
+            
+            // Add event listeners to update state on change
+            row.querySelectorAll('input, select').forEach(input => {
+                input.addEventListener('change', () => {
+                    updateDistributionState();
+                    updateDistributionStats();
+                    updateDistributionChart();
+                });
+            });
+            
+            tableBody.appendChild(row);
+            
+            // Update the state with the new row
+            if (!data) {
+                appState.distributionRows.push(rowData);
+            } else {
+                appState.distributionRows.push(rowData);
+            }
+            
+            updateDistributionState();
+            updateDistributionStats();
+            updateDistributionChart();
+        }
+        
+        function updateDistributionState() {
+            const rows = document.querySelectorAll('#distributionTable tbody tr');
+            appState.distributionRows = Array.from(rows).map(row => ({
+                unit: row.querySelector('.dist-unit').value,
+                questionType: row.querySelector('.dist-question-type').value,
+                numQuestions: row.querySelector('.dist-num-questions').value,
+                marks: row.querySelector('.dist-marks').value,
+                bloomLevel: row.querySelector('.dist-bloom-level').value,
+                courseOutcome: row.querySelector('.dist-course-outcome').value,
+                difficulty: row.querySelector('.dist-difficulty').value
+            }));
+        }
+        
+        function updateDistributionStats() {
+            const totalMarks = appState.distributionRows.reduce((sum, row) => {
+                return sum + (Number(row.numQuestions) * Number(row.marks));
+            }, 0);
+            
+            const totalQuestions = appState.distributionRows.reduce((sum, row) => {
+                return sum + Number(row.numQuestions);
+            }, 0);
+            
+            const mcqCount = appState.distributionRows
+                .filter(row => row.questionType === 'MCQ')
+                .reduce((sum, row) => sum + Number(row.numQuestions), 0);
+            
+            const shortAnswerCount = appState.distributionRows
+                .filter(row => row.questionType === 'Short Answer')
+                .reduce((sum, row) => sum + Number(row.numQuestions), 0);
+            
+            const longAnswerCount = appState.distributionRows
+                .filter(row => row.questionType === 'Long Answer')
+                .reduce((sum, row) => sum + Number(row.numQuestions), 0);
+            
+            const mcqPercentage = totalQuestions === 0 ? 0 : Math.round((mcqCount / totalQuestions) * 100);
+            const shortAnswerPercentage = totalQuestions === 0 ? 0 : Math.round((shortAnswerCount / totalQuestions) * 100);
+            const longAnswerPercentage = totalQuestions === 0 ? 0 : Math.round((longAnswerCount / totalQuestions) * 100);
+            
+            document.getElementById('totalMarks').textContent = totalMarks;
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('mcqPercentage').textContent = mcqPercentage + '%';
+            document.getElementById('shortAnswerPercentage').textContent = shortAnswerPercentage + '%';
+            document.getElementById('longAnswerPercentage').textContent = longAnswerPercentage + '%';
+        }
+        
+        function generateAutoDistribution() {
+            if (appState.units.length === 0) {
+                showNotification('Please add syllabus units first', 'error');
+                return;
+            }
+            
+            if (appState.outcomes.length === 0) {
+                showNotification('Please add course outcomes first', 'error');
+                return;
+            }
+            
+            const totalMarks = Number(document.getElementById('autoTotalMarks').value);
+            
+            if (isNaN(totalMarks) || totalMarks <= 0) {
+                showNotification('Please enter a valid number of marks', 'error');
+                return;
+            }
+            
+            // Default distribution: 40% MCQ, 40% Short Answer, 20% Long Answer
+            const mcqMarks = Math.round(totalMarks * 0.4);
+            const shortAnswerMarks = Math.round(totalMarks * 0.4);
+            const longAnswerMarks = totalMarks - mcqMarks - shortAnswerMarks;
+            
+            // Marks per question type
+            const mcqMarksPerQuestion = 1;
+            const shortAnswerMarksPerQuestion = 3;
+            const longAnswerMarksPerQuestion = 5;
+            
+            // Number of questions for each type
+            const mcqCount = Math.round(mcqMarks / mcqMarksPerQuestion);
+            const shortAnswerCount = Math.round(shortAnswerMarks / shortAnswerMarksPerQuestion);
+            const longAnswerCount = Math.round(longAnswerMarks / longAnswerMarksPerQuestion);
+            
+            // Clear existing auto distribution
+            document.querySelector('#autoDistributionTable tbody').innerHTML = '';
+            appState.autoDistribution = [];
+            
+            // Distribute MCQs
+            distributeMCQs(mcqCount, mcqMarksPerQuestion);
+            
+            // Distribute Short Answers
+            distributeShortAnswers(shortAnswerCount, shortAnswerMarksPerQuestion);
+            
+            // Distribute Long Answers
+            distributeLongAnswers(longAnswerCount, longAnswerMarksPerQuestion);
+            
+            showNotification('Auto distribution generated successfully!', 'success');
+        }
+        
+        function distributeMCQs(count, marksPerQuestion) {
+            const unitsCount = appState.units.length;
+            const bloomLevels = ['Remember', 'Understand', 'Apply'];
+            
+            for (let i = 0; i < count; i++) {
+                const unitIndex = i % unitsCount;
+                const bloomIndex = i % bloomLevels.length;
+                const coIndex = i % appState.outcomes.length;
+                
+                const autoRow = {
+                    unit: `Unit ${unitIndex + 1}`,
+                    questionType: 'MCQ',
+                    numQuestions: '1',
+                    marks: marksPerQuestion.toString(),
+                    bloomLevel: bloomLevels[bloomIndex],
+                    courseOutcome: `CO${coIndex + 1}`,
+                    difficulty: i % 3 === 0 ? 'Easy' : i % 3 === 1 ? 'Medium' : 'Hard'
+                };
+                
+                addAutoDistributionRow(autoRow);
+            }
+        }
+        
+        function distributeShortAnswers(count, marksPerQuestion) {
+            const unitsCount = appState.units.length;
+            const bloomLevels = ['Understand', 'Apply', 'Analyze'];
+            
+            for (let i = 0; i < count; i++) {
+                const unitIndex = i % unitsCount;
+                const bloomIndex = i % bloomLevels.length;
+                const coIndex = i % appState.outcomes.length;
+                
+                const autoRow = {
+                    unit: `Unit ${unitIndex + 1}`,
+                    questionType: 'Short Answer',
+                    numQuestions: '1',
+                    marks: marksPerQuestion.toString(),
+                    bloomLevel: bloomLevels[bloomIndex],
+                    courseOutcome: `CO${coIndex + 1}`,
+                    difficulty: i % 3 === 0 ? 'Medium' : i % 3 === 1 ? 'Easy' : 'Hard'
+                };
+                
+                addAutoDistributionRow(autoRow);
+            }
+        }
+        
+        function distributeLongAnswers(count, marksPerQuestion) {
+            const unitsCount = appState.units.length;
+            const bloomLevels = ['Analyze', 'Evaluate', 'Create'];
+            
+            for (let i = 0; i < count; i++) {
+                const unitIndex = i % unitsCount;
+                const bloomIndex = i % bloomLevels.length;
+                const coIndex = i % appState.outcomes.length;
+                
+                const autoRow = {
+                    unit: `Unit ${unitIndex + 1}`,
+                    questionType: 'Long Answer',
+                    numQuestions: '1',
+                    marks: marksPerQuestion.toString(),
+                    bloomLevel: bloomLevels[bloomIndex],
+                    courseOutcome: `CO${coIndex + 1}`,
+                    difficulty: i % 3 === 0 ? 'Hard' : i % 3 === 1 ? 'Medium' : 'Easy'
+                };
+                
+                addAutoDistributionRow(autoRow);
+            }
+        }
+        
+        function addAutoDistributionRow(rowData) {
+            const tableBody = document.querySelector('#autoDistributionTable tbody');
+            const row = document.createElement('tr');
+            
+            // Get unit title if available
+            const unitIndex = parseInt(rowData.unit.replace('Unit ', '')) - 1;
+            const unitTitle = unitIndex >= 0 && unitIndex < appState.units.length && appState.units[unitIndex].title
+                ? appState.units[unitIndex].title
+                : rowData.unit;
+            
+            row.innerHTML = `
+                <td class="px-4 py-2 border">${unitTitle}</td>
+                <td class="px-4 py-2 border">${rowData.questionType}</td>
+                <td class="px-4 py-2 border">${rowData.numQuestions}</td>
+                <td class="px-4 py-2 border">${rowData.marks}</td>
+                <td class="px-4 py-2 border">${rowData.bloomLevel}</td>
+                <td class="px-4 py-2 border">${rowData.courseOutcome}</td>
+                <td class="px-4 py-2 border">${rowData.difficulty}</td>
+            `;
+            
+            tableBody.appendChild(row);
+            appState.autoDistribution.push(rowData);
+        }
+        
+        function applyAutoDistribution() {
+            if (appState.autoDistribution.length === 0) {
+                showNotification('Please generate auto distribution first', 'error');
+                return;
+            }
+            
+            // Clear existing distribution
+            document.querySelector('#distributionTable tbody').innerHTML = '';
+            appState.distributionRows = [];
+            
+            // Add auto distribution rows
+            appState.autoDistribution.forEach(row => {
+                addDistributionRow(row);
+            });
+            
+            showNotification('Auto distribution applied successfully!', 'success');
+        }
+        
+        function saveDistribution() {
+            updateDistributionState();
+        }
+        
+        // Generated Questions functionality
+        function initGeneratedQuestions() {
+            const generateQuestionsBtn = document.getElementById('generateQuestionsBtn');
+            const exportQuestionsBtn = document.getElementById('exportQuestionsBtn');
+            
+            generateQuestionsBtn.addEventListener('click', generateQuestions);
+            exportQuestionsBtn.addEventListener('click', exportQuestions);
+            
+            updateQuestionFilters();
+        }
+        
+        function updateQuestionFilters() {
+            const unitFilter = document.getElementById('questionFilterUnit');
+            const unitSet = new Set();
+            
+            // Clear existing options except 'All Units'
+            while (unitFilter.options.length > 1) {
+                unitFilter.remove(1);
+            }
+            
+            // Add units from distribution rows
+            appState.distributionRows.forEach(row => {
+                unitSet.add(row.unit);
+            });
+            
+            // Add options to the select
+            unitSet.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = unit;
+                unitFilter.appendChild(option);
+            });
+            
+            // Add event listeners to filters
+            document.getElementById('questionFilterUnit').addEventListener('change', filterQuestions);
+            document.getElementById('questionFilterType').addEventListener('change', filterQuestions);
+        }
+        
+        async function generateQuestions() {
+            if (!appState.apiKeyValidated) {
+                showNotification('Please validate your API key first', 'error');
+                activateTab('apiKeyTab');
+                return;
+            }
+            
+            if (appState.distributionRows.length === 0) {
+                showNotification('Please add question distribution first', 'error');
+                activateTab('questionDistributionTab');
+                return;
+            }
+            
+            // Show progress UI
+            document.getElementById('generateSpinner').classList.remove('hidden');
+            document.getElementById('generateBtnText').textContent = 'Generating...';
+            document.getElementById('generationProgress').classList.remove('hidden');
+            
+            const totalQuestions = appState.distributionRows.reduce((sum, row) => sum + Number(row.numQuestions), 0);
+            let completedQuestions = 0;
+            
+            // Clear existing questions
+            appState.generatedQuestions = [];
+            document.getElementById('questionsContainer').innerHTML = '';
+            
+            try {
+                // Process each distribution row
+                for (const distRow of appState.distributionRows) {
+                    const unitIndex = parseInt(distRow.unit.replace('Unit ', '')) - 1;
+                    const unitData = appState.units[unitIndex];
+                    
+                    if (!unitData) {
+                        showNotification(`Error: ${distRow.unit} not found in syllabus`, 'error');
+                        continue;
                     }
+                    
+                    const numQuestions = Number(distRow.numQuestions);
+                    
+                    for (let i = 0; i < numQuestions; i++) {
+                        const question = await generateSingleQuestion(
+                            distRow.unit,
+                            unitData.title,
+                            unitData.topics,
+                            distRow.questionType,
+                            distRow.marks,
+                            distRow.bloomLevel,
+                            distRow.courseOutcome,
+                            distRow.difficulty
+                        );
+                        
+                        if (question) {
+                            appState.generatedQuestions.push(question);
+                            displayQuestion(question);
+                        }
+                        
+                        completedQuestions++;
+                        updateProgressBar(completedQuestions, totalQuestions);
+                    }
+                }
+                
+                showNotification('Questions generated successfully!', 'success');
+            } catch (error) {
+                console.error('Question generation error:', error);
+                showNotification('Error generating questions: ' + error.message, 'error');
+            } finally {
+                // Hide progress UI
+                document.getElementById('generateSpinner').classList.add('hidden');
+                document.getElementById('generateBtnText').innerHTML = '<i class="fas fa-play mr-1"></i> Generate Questions';
+                
+                // Leave progress bar visible to show completion
+                updateProgressBar(completedQuestions, totalQuestions);
+            }
+        }
+        
+        async function generateSingleQuestion(unit, unitTitle, topics, questionType, marks, bloomLevel, courseOutcome, difficulty) {
+            try {
+                // Format the prompt for Gemini API
+                const topicsList = topics.split('\n').filter(topic => topic.trim()).map(topic => `- ${topic.trim()}`).join('\n');
+                
+                const prompt = `
+                Generate a ${questionType} question for a course exam with the following specifications:
+                
+                Unit: ${unit} - ${unitTitle}
+                Topics covered in this unit:
+                ${topicsList}
+                
+                Question Type: ${questionType}
+                Marks: ${marks}
+                Bloom's Taxonomy Level: ${bloomLevel}
+                Course Outcome: ${courseOutcome}
+                Difficulty: ${difficulty}
+                
+                Please format the output as follows:
+                
+                Question: [The question text]
+                ${questionType === 'MCQ' ? 'Options:\nA. [Option A]\nB. [Option B]\nC. [Option C]\nD. [Option D]\n\nCorrect Answer: [The letter of the correct option]' : ''}
+                ${questionType !== 'MCQ' ? 'Model Answer: [A comprehensive model answer]' : ''}
+                Marks: ${marks}
+                Bloom's Level: ${bloomLevel}
+                Course Outcome: ${courseOutcome}
+                `;
+                
+                const response = await callGeminiAPI(prompt);
+                
+                if (!response) {
+                    throw new Error('Failed to generate question');
+                }
+                
+                // Parse the response
+                const questionText = extractQuestionText(response);
+                const options = questionType === 'MCQ' ? extractMCQOptions(response) : null;
+                const correctAnswer = questionType === 'MCQ' ? extractCorrectAnswer(response) : null;
+                const modelAnswer = questionType !== 'MCQ' ? extractModelAnswer(response) : null;
+                
+                return {
+                    unit,
+                    unitTitle,
+                    questionType,
+                    marks,
+                    bloomLevel,
+                    courseOutcome,
+                    difficulty,
+                    questionText,
+                    options,
+                    correctAnswer,
+                    modelAnswer
+                };
+                
+            } catch (error) {
+                console.error('Error generating question:', error);
+                showNotification(`Error generating ${questionType} for ${unit}: ${error.message}`, 'error');
+                return null;
+            }
+        }
+        
+        async function callGeminiAPI(prompt) {
+            try {
+                const apiKey = appState.apiKey;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 2048
+                        }
+                    })
                 });
                 
-                // Update the mapping table
-                updateMappingTable();
-                localStorage.setItem("qbg_mapping_data", JSON.stringify(mappingData));
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || 'API request failed');
+                }
                 
-                showToast(`Successfully imported ${mappingData.length} mapping rows!`);
+                const data = await response.json();
+                return data.candidates[0]?.content.parts[0]?.text || '';
+                
             } catch (error) {
-                console.error("Error importing mapping data:", error);
-                alert("Failed to import mapping data. Please check the format.");
+                console.error('Gemini API error:', error);
+                throw new Error('Failed to call Gemini API: ' + error.message);
             }
         }
         
-        // Clear mapping data
-        function clearMapping() {
-            document.getElementById("mapping-import").value = "";
-            mappingData = [];
-            updateMappingTable();
-            localStorage.removeItem("qbg_mapping_data");
-            showToast("Mapping data cleared.");
+        function extractQuestionText(responseText) {
+            const match = responseText.match(/Question:\s*(.*?)(?:Options:|Model Answer:|Marks:|$)/s);
+            return match ? match[1].trim() : 'Question text extraction failed';
         }
         
-        // Update mapping table with current data
-        function updateMappingTable() {
-            const tableBody = document.getElementById("mapping-table-body");
-            tableBody.innerHTML = "";
+        function extractMCQOptions(responseText) {
+            const optionsMatch = responseText.match(/Options:\s*(.*?)(?:Correct Answer:|Marks:|$)/s);
             
-            if (mappingData.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-gray-500">No mapping data available. Import data or add rows manually.</td>
-                    </tr>
-                `;
-                return;
+            if (!optionsMatch) return null;
+            
+            const optionsText = optionsMatch[1];
+            const options = [];
+            
+            // Extract options A, B, C, D
+            const optionRegex = /([A-D])\.\s*(.*?)(?=[A-D]\.|Correct Answer:|Marks:|$)/gs;
+            let match;
+            
+            while ((match = optionRegex.exec(optionsText)) !== null) {
+                options.push({
+                    label: match[1],
+                    text: match[2].trim()
+                });
             }
             
-            mappingData.forEach(row => {
-                const tr = document.createElement("tr");
-                
-                tr.innerHTML = `
-                    <td>${row.unit}</td>
-                    <td>${row.questionType}</td>
-                    <td>${row.questionNo}</td>
-                    <td>${row.marks}</td>
-                    <td>${row.bloomLevel}</td>
-                    <td>${row.courseOutcome}</td>
-                    <td>
-                        <button class="text-red-500 hover:text-red-700" onclick="deleteMappingRow(${row.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                
-                tableBody.appendChild(tr);
-            });
+            return options;
         }
         
-        // Add a new mapping row manually
-        function addMappingRow() {
-            const newRow = {
-                id: Date.now(),
-                unit: prompt("Enter Unit Number:") || "",
-                questionType: prompt("Enter Question Type (MCQ, Short, Long):") || "",
-                questionNo: prompt("Enter Question Number:") || "",
-                marks: prompt("Enter Marks:") || "",
-                bloomLevel: prompt("Enter Bloom Level:") || "",
-                courseOutcome: prompt("Enter Course Outcome (e.g., CO1):") || ""
-            };
+        function extractCorrectAnswer(responseText) {
+            const match = responseText.match(/Correct Answer:\s*([A-D])/);
+            return match ? match[1] : null;
+        }
+        
+        function extractModelAnswer(responseText) {
+            const match = responseText.match(/Model Answer:\s*(.*?)(?:Marks:|$)/s);
+            return match ? match[1].trim() : null;
+        }
+        
+        function displayQuestion(question) {
+            const container = document.getElementById('questionsContainer');
             
-            mappingData.push(newRow);
-            updateMappingTable();
-            localStorage.setItem("qbg_mapping_data", JSON.stringify(mappingData));
-        }
-        
-        // Delete a mapping row
-        function deleteMappingRow(id) {
-            mappingData = mappingData.filter(row => row.id !== id);
-            updateMappingTable();
-            localStorage.setItem("qbg_mapping_data", JSON.stringify(mappingData));
-        }
-        
-        // Add a row to the distribution table
-        function addDistributionRow() {
-            const unit = document.getElementById("dist-unit").value;
-            const questionType = document.getElementById("dist-question-type").value;
-            const numQuestions = document.getElementById("dist-num-questions").value;
-            const marks = document.getElementById("dist-marks").value;
-            const bloomLevel = document.getElementById("dist-bloom").value;
-            const courseOutcome = document.getElementById("dist-co").value;
-            const difficulty = document.getElementById("dist-difficulty").value;
-            
-            if (!unit || !questionType || !numQuestions || !marks) {
-                alert("Please fill in all required fields (Unit, Question Type, Number of Questions, and Marks).");
-                return;
+            if (container.querySelector('.bg-yellow-50')) {
+                container.innerHTML = ''; // Clear the initial message
             }
             
-            const newRow = {
-                id: Date.now(),
-                unit,
-                questionType,
-                numQuestions: parseInt(numQuestions),
-                marks: parseInt(marks),
-                bloomLevel,
-                courseOutcome,
-                difficulty
-            };
+            const questionCard = document.createElement('div');
+            questionCard.className = 'bg-white border rounded-md shadow-sm mb-4 question-card';
+            questionCard.dataset.unit = question.unit;
+            questionCard.dataset.questionType = question.questionType;
             
-            distributionData.push(newRow);
-            updateDistributionTable();
-            updateDistributionStats();
-            updateUnitCharts();
-            
-            localStorage.setItem("qbg_distribution_data", JSON.stringify(distributionData));
-            
-            // Clear form fields for next entry
-            document.getElementById("dist-unit").value = "";
-            document.getElementById("dist-question-type").value = "";
-            document.getElementById("dist-num-questions").value = "1";
-            document.getElementById("dist-marks").value = "1";
-            document.getElementById("dist-bloom").value = "";
-            document.getElementById("dist-co").value = "";
-            document.getElementById("dist-difficulty").value = "";
-        }
-        
-        // Update distribution table
-        function updateDistributionTable() {
-            const tableBody = document.getElementById("distribution-table-body");
-            tableBody.innerHTML = "";
-            
-            if (distributionData.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center py-4 text-gray-500">No distribution data available. Add distribution rows or use automatic distribution.</td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            distributionData.forEach(row => {
-                const tr = document.createElement("tr");
-                
-                const unitText = syllabusData.units.find(u => u.number == row.unit)
-                    ? `Unit ${row.unit}: ${syllabusData.units.find(u => u.number == row.unit).title}`
-                    : `Unit ${row.unit}`;
-                
-                tr.innerHTML = `
-                    <td>${unitText}</td>
-                    <td>${row.questionType}</td>
-                    <td>${row.numQuestions}</td>
-                    <td>${row.marks}</td>
-                    <td>${row.bloomLevel || '-'}</td>
-                    <td>${row.courseOutcome || '-'}</td>
-                    <td>${row.difficulty || '-'}</td>
-                    <td>
-                        <button class="text-red-500 hover:text-red-700" onclick="deleteDistributionRow(${row.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                
-                tableBody.appendChild(tr);
-            });
-        }
-        
-        // Delete a distribution row
-        function deleteDistributionRow(id) {
-            distributionData = distributionData.filter(row => row.id !== id);
-            updateDistributionTable();
-            updateDistributionStats();
-            updateUnitCharts();
-            localStorage.setItem("qbg_distribution_data", JSON.stringify(distributionData));
-        }
-        
-        // Update distribution statistics
-        function updateDistributionStats() {
-            let totalMarks = 0;
-            let totalQuestions = 0;
-            let mcqQuestions = 0;
-            let shortQuestions = 0;
-            let longQuestions = 0;
-            
-            distributionData.forEach(row => {
-                totalMarks += row.numQuestions * row.marks;
-                totalQuestions += row.numQuestions;
-                
-                if (row.questionType === "MCQ") {
-                    mcqQuestions += row.numQuestions;
-                } else if (row.questionType === "Short") {
-                    shortQuestions += row.numQuestions;
-                } else if (row.questionType === "Long") {
-                    longQuestions += row.numQuestions;
-                }
-            });
-            
-            // Calculate percentages
-            const mcqPercentage = totalQuestions ? Math.round((mcqQuestions / totalQuestions) * 100) : 0;
-            const shortPercentage = totalQuestions ? Math.round((shortQuestions / totalQuestions) * 100) : 0;
-            const longPercentage = totalQuestions ? Math.round((longQuestions / totalQuestions) * 100) : 0;
-            
-            // Update the stats display
-            document.getElementById("total-marks").textContent = totalMarks;
-            document.getElementById("total-questions").textContent = totalQuestions;
-            document.getElementById("mcq-percentage").textContent = mcqPercentage + "%";
-            document.getElementById("short-percentage").textContent = shortPercentage + "%";
-            document.getElementById("long-percentage").textContent = longPercentage + "%";
-        }
-        
-        // Update unit distribution charts
-        function updateUnitCharts() {
-            const unitQuestionBars = document.getElementById("unit-question-bars");
-            const unitMarksBars = document.getElementById("unit-marks-bars");
-            
-            // Clear existing bars
-            unitQuestionBars.innerHTML = "";
-            unitMarksBars.innerHTML = "";
-            
-            if (distributionData.length === 0) {
-                unitQuestionBars.innerHTML = `<p class="text-center text-gray-500 py-4">No data available</p>`;
-                unitMarksBars.innerHTML = `<p class="text-center text-gray-500 py-4">No data available</p>`;
-                return;
-            }
-            
-            // Calculate totals and unit distributions
-            const totalQuestions = distributionData.reduce((sum, row) => sum + row.numQuestions, 0);
-            const totalMarks = distributionData.reduce((sum, row) => sum + (row.numQuestions * row.marks), 0);
-            
-            // Group by unit
-            const unitStats = {};
-            
-            distributionData.forEach(row => {
-                if (!unitStats[row.unit]) {
-                    unitStats[row.unit] = { questions: 0, marks: 0 };
-                }
-                
-                unitStats[row.unit].questions += row.numQuestions;
-                unitStats[row.unit].marks += row.numQuestions * row.marks;
-            });
-            
-            // Sort units
-            const sortedUnits = Object.keys(unitStats).sort((a, b) => parseInt(a) - parseInt(b));
-            
-            // Create bars for questions
-            sortedUnits.forEach(unit => {
-                const questions = unitStats[unit].questions;
-                const questionPercentage = Math.round((questions / totalQuestions) * 100);
-                
-                const unitText = syllabusData.units.find(u => u.number == unit)
-                    ? `Unit ${unit}: ${syllabusData.units.find(u => u.number == unit).title}`
-                    : `Unit ${unit}`;
-                
-                const barHtml = `
-                    <div class="mb-2">
-                        <div class="flex justify-between mb-1">
-                            <span>${unitText}</span>
-                            <span>${questions} questions (${questionPercentage}%)</span>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: ${questionPercentage}%">${questionPercentage}%</div>
-                        </div>
+            let optionsHtml = '';
+            if (question.questionType === 'MCQ' && question.options) {
+                optionsHtml = `
+                    <div class="options mt-3">
+                        ${question.options.map(option => {
+                            const isCorrect = option.label === question.correctAnswer;
+                            return `
+                                <div class="option flex items-start mb-2 ${isCorrect ? 'correct-answer' : ''}">
+                                    <div class="option-label font-semibold mr-2">${option.label}.</div>
+                                    <div class="option-text">${option.text}</div>
+                                    ${isCorrect ? '<div class="ml-2 text-green-600"><i class="fas fa-check-circle"></i></div>' : ''}
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 `;
-                
-                unitQuestionBars.insertAdjacentHTML("beforeend", barHtml);
-            });
+            }
             
-            // Create bars for marks
-            sortedUnits.forEach(unit => {
-                const marks = unitStats[unit].marks;
-                const marksPercentage = Math.round((marks / totalMarks) * 100);
-                
-                const unitText = syllabusData.units.find(u => u.number == unit)
-                    ? `Unit ${unit}: ${syllabusData.units.find(u => u.number == unit).title}`
-                    : `Unit ${unit}`;
-                
-                const barHtml = `
-                    <div class="mb-2">
-                        <div class="flex justify-between mb-1">
-                            <span>${unitText}</span>
-                            <span>${marks} marks (${marksPercentage}%)</span>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: ${marksPercentage}%">${marksPercentage}%</div>
-                        </div>
+            let modelAnswerHtml = '';
+            if (question.questionType !== 'MCQ' && question.modelAnswer) {
+                modelAnswerHtml = `
+                    <div class="model-answer mt-3">
+                        <div class="font-semibold">Model Answer:</div>
+                        <div class="p-2 bg-gray-50 rounded mt-1">${question.modelAnswer}</div>
                     </div>
                 `;
-                
-                unitMarksBars.insertAdjacentHTML("beforeend", barHtml);
-            });
-        }
-        
-        // Generate automatic distribution
-        function generateAutomaticDistribution() {
-            const totalMarks = parseInt(document.getElementById("auto-total-marks").value) || 100;
-            const overallDifficulty = document.getElementById("auto-difficulty").value;
-            
-            if (!totalMarks || totalMarks < 10) {
-                alert("Please enter a valid total marks value (minimum 10).");
-                return;
             }
             
-            // Get the number of units
-            let units = 5;
-            if (syllabusData.units.length > 0) {
-                units = syllabusData.units.length;
-            }
-            
-            // Create a balanced distribution
-            const autoDistribution = [];
-            
-            // Distribution by question types
-            const mcqPercent = 30;
-            const shortPercent = 50;
-            const longPercent = 20;
-            
-            const mcqMarks = Math.round(totalMarks * (mcqPercent / 100));
-            const shortMarks = Math.round(totalMarks * (shortPercent / 100));
-            const longMarks = totalMarks - mcqMarks - shortMarks;
-            
-            // MCQ questions (typically 1 mark each)
-            const mcqPerUnit = Math.floor(mcqMarks / units);
-            const mcqRemainder = mcqMarks % units;
-            
-            for (let i = 1; i <= units; i++) {
-                const numMcq = mcqPerUnit + (i <= mcqRemainder ? 1 : 0);
-                
-                if (numMcq > 0) {
-                    autoDistribution.push({
-                        id: Date.now() + autoDistribution.length,
-                        unit: i.toString(),
-                        questionType: "MCQ",
-                        numQuestions: numMcq,
-                        marks: 1,
-                        bloomLevel: ["Remember", "Understand"][Math.floor(Math.random() * 2)],
-                        courseOutcome: syllabusData.outcomes.length > 0 ? `CO${i}` : "",
-                        difficulty: overallDifficulty
-                    });
-                }
-            }
-            
-            // Short questions (typically 3 marks each)
-            const shortPerUnit = Math.floor(shortMarks / (3 * units));
-            const shortRemainder = Math.floor((shortMarks - (shortPerUnit * 3 * units)) / 3);
-            
-            for (let i = 1; i <= units; i++) {
-                const numShort = shortPerUnit + (i <= shortRemainder ? 1 : 0);
-                
-                if (numShort > 0) {
-                    autoDistribution.push({
-                        id: Date.now() + autoDistribution.length,
-                        unit: i.toString(),
-                        questionType: "Short",
-                        numQuestions: numShort,
-                        marks: 3,
-                        bloomLevel: ["Understand", "Apply", "Analyze"][Math.floor(Math.random() * 3)],
-                        courseOutcome: syllabusData.outcomes.length > 0 ? `CO${i}` : "",
-                        difficulty: overallDifficulty
-                    });
-                }
-            }
-            
-            // Long questions (typically 5 marks each)
-            const longPerUnit = Math.floor(longMarks / (5 * units));
-            const longRemainder = Math.floor((longMarks - (longPerUnit * 5 * units)) / 5);
-            
-            for (let i = 1; i <= units; i++) {
-                const numLong = longPerUnit + (i <= longRemainder ? 1 : 0);
-                
-                if (numLong > 0) {
-                    autoDistribution.push({
-                        id: Date.now() + autoDistribution.length,
-                        unit: i.toString(),
-                        questionType: "Long",
-                        numQuestions: numLong,
-                        marks: 5,
-                        bloomLevel: ["Apply", "Analyze", "Evaluate", "Create"][Math.floor(Math.random() * 4)],
-                        courseOutcome: syllabusData.outcomes.length > 0 ? `CO${i}` : "",
-                        difficulty: overallDifficulty
-                    });
-                }
-            }
-            
-            // Update the automatic distribution table
-            updateAutomaticDistributionTable(autoDistribution);
-        }
-        
-        // Update automatic distribution table
-        function updateAutomaticDistributionTable(data) {
-            const tableBody = document.getElementById("auto-distribution-table-body");
-            tableBody.innerHTML = "";
-            
-            if (!data || data.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-gray-500">Generate an automatic distribution to see results here.</td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            data.forEach(row => {
-                const tr = document.createElement("tr");
-                
-                const unitText = syllabusData.units.find(u => u.number == row.unit)
-                    ? `Unit ${row.unit}: ${syllabusData.units.find(u => u.number == row.unit).title}`
-                    : `Unit ${row.unit}`;
-                
-                tr.innerHTML = `
-                    <td>${unitText}</td>
-                    <td>${row.questionType}</td>
-                    <td>${row.numQuestions}</td>
-                    <td>${row.marks}</td>
-                    <td>${row.bloomLevel || '-'}</td>
-                    <td>${row.courseOutcome || '-'}</td>
-                    <td>${row.difficulty || '-'}</td>
-                `;
-                
-                tableBody.appendChild(tr);
-            });
-        }
-        
-        // Apply the automatic distribution
-        function applyAutomaticDistribution() {
-            const tableBody = document.getElementById("auto-distribution-table-body");
-            
-            if (tableBody.innerHTML.includes("Generate an automatic distribution")) {
-                alert("Please generate an automatic distribution first.");
-                return;
-            }
-            
-            // Ask for confirmation
-            if (!confirm("This will replace your current distribution. Continue?")) {
-                return;
-            }
-            
-            // Create a new distribution from the automatic table
-            const rows = tableBody.querySelectorAll("tr");
-            const newDistribution = [];
-            
-            rows.forEach((row, index) => {
-                const cells = row.querySelectorAll("td");
-                
-                if (cells.length >= 7) {
-                    const unitText = cells[0].textContent;
-                    const unit = unitText.split(":")[0].replace("Unit", "").trim();
-                    
-                    newDistribution.push({
-                        id: Date.now() + index,
-                        unit,
-                        questionType: cells[1].textContent,
-                        numQuestions: parseInt(cells[2].textContent),
-                        marks: parseInt(cells[3].textContent),
-                        bloomLevel: cells[4].textContent !== '-' ? cells[4].textContent : '',
-                        courseOutcome: cells[5].textContent !== '-' ? cells[5].textContent : '',
-                        difficulty: cells[6].textContent !== '-' ? cells[6].textContent : ''
-                    });
-                }
-            });
-            
-            // Update the distribution data
-            distributionData = newDistribution;
-            updateDistributionTable();
-            updateDistributionStats();
-            updateUnitCharts();
-            
-            localStorage.setItem("qbg_distribution_data", JSON.stringify(distributionData));
-            showToast("Automatic distribution applied successfully!");
-        }
-        
-        // Validate distribution before proceeding to question generation
-        function validateDistribution() {
-            if (distributionData.length === 0) {
-                alert("Please add at least one question distribution before proceeding.");
-                return;
-            }
-            
-            openTab(null, "generated");
-        }
-        
-        // Generate questions based on distribution
-        function generateQuestions() {
-            if (distributionData.length === 0) {
-                alert("Please define your question distribution before generating questions.");
-                return;
-            }
-            
-            if (!apiKey) {
-                alert("Please provide a valid API key in the API Key tab.");
-                return;
-            }
-            
-            const questionsContainer = document.getElementById("questions-container");
-            questionsContainer.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-                    <p class="text-gray-600">Generating questions...</p>
-                    <p class="text-sm text-gray-500 mt-2">This may take a few moments depending on the complexity of your distribution.</p>
+            questionCard.innerHTML = `
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-medium">${question.unit} ${question.unitTitle ? '- ' + question.unitTitle : ''}</h3>
+                        <div class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${question.questionType} | ${question.marks} marks</div>
+                    </div>
+                    <div class="tags text-xs space-x-2 mb-3">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">${question.bloomLevel}</span>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded">${question.courseOutcome}</span>
+                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded">${question.difficulty}</span>
+                    </div>
+                    <div class="question-text mb-3">${question.questionText}</div>
+                    ${optionsHtml}
+                    ${modelAnswerHtml}
                 </div>
             `;
             
-            // In a real application, this would make API calls to Gemini API
-            // For this demo, we'll simulate question generation with a timeout
-            setTimeout(() => {
-                generateSampleQuestions();
-            }, 2000);
+            container.appendChild(questionCard);
         }
         
-        // Simulate generating sample questions
-        function generateSampleQuestions() {
-            generatedQuestions = [];
-            
-            // For each distribution row, generate the specified number of questions
-            distributionData.forEach(distRow => {
-                const { unit, questionType, numQuestions, marks, bloomLevel, courseOutcome, difficulty } = distRow;
-                
-                // Get unit topics if available
-                let topics = [];
-                const unitData = syllabusData.units.find(u => u.number == unit);
-                if (unitData && unitData.topics) {
-                    topics = unitData.topics;
-                }
-                
-                for (let i = 0; i < numQuestions; i++) {
-                    // Select a random topic if available
-                    const topic = topics.length > 0 ? topics[Math.floor(Math.random() * topics.length)] : `Topic from Unit ${unit}`;
-                    
-                    let question = '';
-                    let answer = '';
-                    
-                    // Generate question based on type
-                    if (questionType === "MCQ") {
-                        // Sample MCQ question
-                        question = `What is the primary purpose of ${topic}?`;
-                        answer = `A) To manage system resources\nB) To facilitate user interactions\nC) To optimize performance\nD) To ensure data integrity\n\nCorrect Answer: B`;
-                    } else if (questionType === "Short") {
-                        // Sample short answer question
-                        question = `Briefly explain the concept of ${topic} and its significance.`;
-                        answer = `${topic} refers to the process of organizing and controlling resources in a computing environment. It is significant because it enables efficient utilization of system capabilities while providing a structured approach to managing complexity.`;
-                    } else if (questionType === "Long") {
-                        // Sample long answer question
-                        question = `Discuss in detail the implementation challenges of ${topic} and propose strategies to overcome them. Include practical examples.`;
-                        answer = `Implementation of ${topic} presents several challenges:\n\n1. Compatibility issues with existing systems\n2. Performance overhead during integration\n3. Security concerns related to data exchange\n4. Maintenance complexity\n\nTo overcome these challenges, organizations can:\n\n- Adopt a phased implementation approach\n- Utilize standardized protocols and interfaces\n- Implement comprehensive testing procedures\n- Develop clear documentation\n\nFor example, when implementing a new database system, organizations can maintain parallel systems during transition, use ETL tools for data migration, and establish clear rollback procedures.`;
-                    }
-                    
-                    // Add to generated questions
-                    generatedQuestions.push({
-                        id: Date.now() + generatedQuestions.length,
-                        unit,
-                        unitTitle: unitData?.title || `Unit ${unit}`,
-                        topic,
-                        questionType,
-                        marks,
-                        bloomLevel,
-                        courseOutcome,
-                        difficulty,
-                        question,
-                        answer
-                    });
-                }
-            });
-            
-            // Display the generated questions
-            displayGeneratedQuestions();
-        }
-        
-        // Display generated questions
-        function displayGeneratedQuestions() {
-            const questionsContainer = document.getElementById("questions-container");
-            
-            if (generatedQuestions.length === 0) {
-                questionsContainer.innerHTML = `
-                    <p class="text-center text-gray-500 py-8">No questions have been generated yet.</p>
-                    <p class="text-center text-gray-500">Click the "Generate Questions" button to create questions based on your distribution.</p>
-                `;
-                return;
-            }
-            
-            questionsContainer.innerHTML = '';
-            
-            // Group questions by unit
-            const questionsByUnit = {};
-            generatedQuestions.forEach(q => {
-                if (!questionsByUnit[q.unit]) {
-                    questionsByUnit[q.unit] = [];
-                }
-                questionsByUnit[q.unit].push(q);
-            });
-            
-            // Display questions organized by unit
-            Object.keys(questionsByUnit).sort((a, b) => parseInt(a) - parseInt(b)).forEach(unit => {
-                const unitQuestions = questionsByUnit[unit];
-                const unitTitle = unitQuestions[0].unitTitle;
-                
-                const unitSection = document.createElement("div");
-                unitSection.className = "mb-6";
-                unitSection.innerHTML = `<h3 class="text-lg font-semibold mb-3">Unit ${unit}: ${unitTitle}</h3>`;
-                
-                unitQuestions.forEach(q => {
-                    const questionCard = document.createElement("div");
-                    questionCard.className = "question-card";
-                    
-                    let difficultyBadge = '';
-                    if (q.difficulty) {
-                        const difficultyColor = q.difficulty === 'Easy' ? 'green' : (q.difficulty === 'Medium' ? 'yellow' : 'red');
-                        difficultyBadge = `<span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-${difficultyColor}-100 text-${difficultyColor}-800 ml-2">${q.difficulty}</span>`;
-                    }
-                    
-                    let bloomBadge = '';
-                    if (q.bloomLevel) {
-                        bloomBadge = `<span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800 ml-2">${q.bloomLevel}</span>`;
-                    }
-                    
-                    let courseBadge = '';
-                    if (q.courseOutcome) {
-                        courseBadge = `<span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-purple-100 text-purple-800 ml-2">${q.courseOutcome}</span>`;
-                    }
-                    
-                    questionCard.innerHTML = `
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <span class="font-semibold">${q.questionType}</span>
-                                <span class="ml-2">(${q.marks} marks)</span>
-                                ${difficultyBadge}
-                                ${bloomBadge}
-                                ${courseBadge}
-                            </div>
-                            <div>
-                                <button class="text-blue-500 hover:text-blue-700 mr-2" onclick="toggleAnswerVisibility(this)">
-                                    <i class="fas fa-eye"></i> Toggle Answer
-                                </button>
-                                <button class="text-red-500 hover:text-red-700" onclick="regenerateQuestion(${q.id})">
-                                    <i class="fas fa-sync-alt"></i> Regenerate
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <p class="text-sm text-gray-600 mb-1">Topic: ${q.topic}</p>
-                            <p class="font-medium">${q.question}</p>
-                        </div>
-                        <div class="answer-section hidden bg-gray-50 p-3 rounded border border-gray-200">
-                            <h4 class="font-medium mb-2">Answer:</h4>
-                            <p class="whitespace-pre-line">${q.answer}</p>
-                        </div>
-                    `;
-                    
-                    unitSection.appendChild(questionCard);
-                });
-                
-                questionsContainer.appendChild(unitSection);
-            });
-            
-            showToast(`Successfully generated ${generatedQuestions.length} questions!`);
-        }
-        
-        // Toggle answer visibility
-        function toggleAnswerVisibility(button) {
-            const answerSection = button.closest('.question-card').querySelector('.answer-section');
-            answerSection.classList.toggle('hidden');
-            
-            const icon = button.querySelector('i');
-            if (answerSection.classList.contains('hidden')) {
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            } else {
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            }
-        }
-        
-        // Regenerate a specific question
-        function regenerateQuestion(id) {
-            const questionIndex = generatedQuestions.findIndex(q => q.id === id);
-            
-            if (questionIndex === -1) return;
-            
-            const question = generatedQuestions[questionIndex];
-            
-            // In a real app, this would make an API call to regenerate
-            // For this demo, we'll just modify the existing question slightly
-            
-            if (question.questionType === "MCQ") {
-                question.question = `What are the key components of ${question.topic}?`;
-                question.answer = `A) Interfaces and abstractions\nB) Modules and functions\nC) Data structures and algorithms\nD) All of the above\n\nCorrect Answer: D`;
-            } else if (question.questionType === "Short") {
-                question.question = `Explain how ${question.topic} contributes to system efficiency.`;
-                question.answer = `${question.topic} enhances system efficiency by streamlining resource allocation and reducing operational overhead. It implements optimized algorithms that minimize computational complexity while maximizing throughput.`;
-            } else if (question.questionType === "Long") {
-                question.question = `Compare and contrast different approaches to implementing ${question.topic}. Analyze their strengths and weaknesses in various application contexts.`;
-                question.answer = `There are several approaches to implementing ${question.topic}:\n\n1. Monolithic approach: All components are tightly integrated\n   - Strengths: Simplified development, potentially better performance\n   - Weaknesses: Difficult to maintain, less scalable\n\n2. Modular approach: Functionality divided into independent modules\n   - Strengths: Better maintainability, independent scaling\n   - Weaknesses: Potential communication overhead\n\n3. Service-oriented approach: Functionality exposed as services\n   - Strengths: Maximum flexibility, technology agnostic\n   - Weaknesses: Complex deployment, potential latency\n\nThe choice depends on factors such as application size, team structure, and scalability requirements. For example, small applications might benefit from the monolithic approach, while enterprise systems typically require modular or service-oriented architectures.`;
-            }
-            
-            // Update the array
-            generatedQuestions[questionIndex] = question;
-            
-            // Refresh the display
-            displayGeneratedQuestions();
-            
-            showToast("Question regenerated successfully!");
-        }
-        
-        // Filter questions based on selected criteria
         function filterQuestions() {
-            const unitFilter = document.getElementById("filter-unit").value;
-            const typeFilter = document.getElementById("filter-type").value;
-            const bloomFilter = document.getElementById("filter-bloom").value;
-            const coFilter = document.getElementById("filter-co").value;
+            const unitFilter = document.getElementById('questionFilterUnit').value;
+            const typeFilter = document.getElementById('questionFilterType').value;
             
-            if (generatedQuestions.length === 0) {
-                return; // No questions to filter
-            }
+            const questionCards = document.querySelectorAll('.question-card');
             
-            // Filter the questions
-            const filtered = generatedQuestions.filter(q => {
-                return (!unitFilter || q.unit === unitFilter) &&
-                       (!typeFilter || q.questionType === typeFilter) &&
-                       (!bloomFilter || q.bloomLevel === bloomFilter) &&
-                       (!coFilter || q.courseOutcome === coFilter);
-            });
-            
-            displayFilteredQuestions(filtered);
-        }
-        
-        // Display filtered questions
-        function displayFilteredQuestions(filteredQuestions) {
-            const questionsContainer = document.getElementById("questions-container");
-            
-            if (filteredQuestions.length === 0) {
-                questionsContainer.innerHTML = `
-                    <p class="text-center text-gray-500 py-8">No questions match your filter criteria.</p>
-                    <p class="text-center text-gray-500">Try adjusting your filters or generate more questions.</p>
-                `;
-                return;
-            }
-            
-            questionsContainer.innerHTML = '';
-            
-            // Group questions by unit
-            const questionsByUnit = {};
-            filteredQuestions.forEach(q => {
-                if (!questionsByUnit[q.unit]) {
-                    questionsByUnit[q.unit] = [];
+            questionCards.forEach(card => {
+                const unit = card.dataset.unit;
+                const type = card.dataset.questionType;
+                
+                const unitMatch = unitFilter === 'all' || unit === unitFilter;
+                const typeMatch = typeFilter === 'all' || type === typeFilter;
+                
+                if (unitMatch && typeMatch) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
                 }
-                questionsByUnit[q.unit].push(q);
-            });
-            
-            // Display questions organized by unit
-            Object.keys(questionsByUnit).sort((a, b) => parseInt(a) - parseInt(b)).forEach(unit => {
-                const unitQuestions = questionsByUnit[unit];
-                const unitTitle = unitQuestions[0].unitTitle;
-                
-                const unitSection = document.createElement("div");
-                unitSection.className = "mb-6";
-                unitSection.innerHTML = `<h3 class="text-lg font-semibold mb-3">Unit ${unit}: ${unitTitle}</h3>`;
-                
-                unitQuestions.forEach(q => {
-                    const questionCard = document.createElement("div");
-                    questionCard.className = "question-card";
-                    
-                    let difficultyBadge = '';
-                    if (q.difficulty) {
-                        const difficultyColor = q.difficulty === 'Easy' ? 'green' : (q.difficulty === 'Medium' ? 'yellow' : 'red');
-                        difficultyBadge = `<span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-${difficultyColor}-100 text-${difficultyColor}-800 ml-2">${q.difficulty}</span>`;
-                    }
-                    
-                    let bloomBadge = '';
-                    if (q.bloomLevel) {
-                        bloomBadge = `<span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800 ml-2">${q.bloomLevel}</span>`;
-                    }
-                    
-                    let courseBadge = '';
-                    if (q.courseOutcome) {
-                        courseBadge = `<span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-purple-100 text-purple-800 ml-2">${q.courseOutcome}</span>`;
-                    }
-                    
-                    questionCard.innerHTML = `
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <span class="font-semibold">${q.questionType}</span>
-                                <span class="ml-2">(${q.marks} marks)</span>
-                                ${difficultyBadge}
-                                ${bloomBadge}
-                                ${courseBadge}
-                            </div>
-                            <div>
-                                <button class="text-blue-500 hover:text-blue-700 mr-2" onclick="toggleAnswerVisibility(this)">
-                                    <i class="fas fa-eye"></i> Toggle Answer
-                                </button>
-                                <button class="text-red-500 hover:text-red-700" onclick="regenerateQuestion(${q.id})">
-                                    <i class="fas fa-sync-alt"></i> Regenerate
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <p class="text-sm text-gray-600 mb-1">Topic: ${q.topic}</p>
-                            <p class="font-medium">${q.question}</p>
-                        </div>
-                        <div class="answer-section hidden bg-gray-50 p-3 rounded border border-gray-200">
-                            <h4 class="font-medium mb-2">Answer:</h4>
-                            <p class="whitespace-pre-line">${q.answer}</p>
-                        </div>
-                    `;
-                    
-                    unitSection.appendChild(questionCard);
-                });
-                
-                questionsContainer.appendChild(unitSection);
             });
         }
         
-        // Export generated questions
+        function updateProgressBar(completed, total) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            const percentage = Math.round((completed / total) * 100);
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `Generating questions: ${completed}/${total}`;
+        }
+        
         function exportQuestions() {
-            if (generatedQuestions.length === 0) {
-                alert("Please generate questions before exporting.");
+            if (appState.generatedQuestions.length === 0) {
+                showNotification('No questions to export', 'error');
                 return;
             }
             
-            // Build a document for export
-            let exportContent = `# Question Bank for ${courseData.code || ''}: ${courseData.title || ''}\n\n`;
-            exportContent += `Generated on: ${new Date().toLocaleDateString()}\n\n`;
-            
-            // Group questions by unit
-            const questionsByUnit = {};
-            generatedQuestions.forEach(q => {
-                if (!questionsByUnit[q.unit]) {
-                    questionsByUnit[q.unit] = [];
-                }
-                questionsByUnit[q.unit].push(q);
-            });
-            
-            // Add questions organized by unit
-            Object.keys(questionsByUnit).sort((a, b) => parseInt(a) - parseInt(b)).forEach(unit => {
-                const unitQuestions = questionsByUnit[unit];
-                const unitTitle = unitQuestions[0].unitTitle;
+            try {
+                let exportText = `# Question Bank for ${appState.courseDetails.courseTitle || 'Course'}\n\n`;
                 
-                exportContent += `## Unit ${unit}: ${unitTitle}\n\n`;
-                
-                // Group by question type within unit
-                const questionTypes = ['MCQ', 'Short', 'Long'];
-                
-                questionTypes.forEach(type => {
-                    const typeQuestions = unitQuestions.filter(q => q.questionType === type);
+                appState.generatedQuestions.forEach((question, index) => {
+                    exportText += `## Question ${index + 1}\n\n`;
+                    exportText += `Unit: ${question.unit}${question.unitTitle ? ' - ' + question.unitTitle : ''}\n`;
+                    exportText += `Type: ${question.questionType}\n`;
+                    exportText += `Marks: ${question.marks}\n`;
+                    exportText += `Bloom's Level: ${question.bloomLevel}\n`;
+                    exportText += `Course Outcome: ${question.courseOutcome}\n`;
+                    exportText += `Difficulty: ${question.difficulty}\n\n`;
                     
-                    if (typeQuestions.length > 0) {
-                        exportContent += `### ${type} Questions\n\n`;
-                        
-                        typeQuestions.forEach((q, index) => {
-                            exportContent += `**Q${index + 1}. (${q.marks} marks)** ${q.question}\n\n`;
-                            
-                            if (type === 'MCQ') {
-                                exportContent += `${q.answer}\n\n`;
-                            } else {
-                                exportContent += `**Answer:**\n${q.answer}\n\n`;
-                            }
+                    exportText += `${question.questionText}\n\n`;
+                    
+                    if (question.questionType === 'MCQ' && question.options) {
+                        question.options.forEach(option => {
+                            const isCorrect = option.label === question.correctAnswer;
+                            exportText += `${option.label}. ${option.text} ${isCorrect ? '(Correct)' : ''}\n`;
                         });
+                        exportText += '\n';
+                    } else if (question.modelAnswer) {
+                        exportText += `Model Answer: ${question.modelAnswer}\n\n`;
                     }
+                    
+                    exportText += '---\n\n';
                 });
+                
+                // Create a blob and trigger download
+                const blob = new Blob([exportText], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${appState.courseDetails.courseCode || 'course'}_question_bank.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('Questions exported successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                showNotification('Error exporting questions: ' + error.message, 'error');
+            }
+        }
+        
+        // Chart visualization
+        function initCharts() {
+            // Initialize charts with empty data
+            updateDistributionChart();
+        }
+        
+        function updateDistributionChart() {
+            const chartCanvas = document.getElementById('unitDistributionChart');
+            const existingChart = Chart.getChart(chartCanvas);
+            
+            // Destroy existing chart if it exists
+            if (existingChart) {
+                existingChart.destroy();
+            }
+            
+            // Process data for charts
+            const unitLabels = [...new Set(appState.distributionRows.map(row => row.unit))];
+            
+            const mcqData = unitLabels.map(unit => {
+                return appState.distributionRows
+                    .filter(row => row.unit === unit && row.questionType === 'MCQ')
+                    .reduce((sum, row) => sum + Number(row.numQuestions), 0);
             });
             
-            // Create a download link
-            const blob = new Blob([exportContent], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
+            const shortAnswerData = unitLabels.map(unit => {
+                return appState.distributionRows
+                    .filter(row => row.unit === unit && row.questionType === 'Short Answer')
+                    .reduce((sum, row) => sum + Number(row.numQuestions), 0);
+            });
             
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${courseData.code || 'course'}_question_bank.md`;
-            a.click();
+            const longAnswerData = unitLabels.map(unit => {
+                return appState.distributionRows
+                    .filter(row => row.unit === unit && row.questionType === 'Long Answer')
+                    .reduce((sum, row) => sum + Number(row.numQuestions), 0);
+            });
             
-            URL.revokeObjectURL(url);
-            showToast("Questions exported successfully!");
+            // Create new chart
+            new Chart(chartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: unitLabels,
+                    datasets: [
+                        {
+                            label: 'MCQ',
+                            data: mcqData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Short Answer',
+                            data: shortAnswerData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Long Answer',
+                            data: longAnswerData,
+                            backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Questions'
+                            }
+                        }
+                    }
+                }
+            });
         }
         
-        // Load saved data from localStorage
-        function loadSavedData() {
-            // Load course data
-            const savedCourseData = localStorage.getItem("qbg_course_data");
-            if (savedCourseData) {
-                courseData = JSON.parse(savedCourseData);
+        // Storage functionality
+        function saveStateToLocalStorage() {
+            try {
+                // Save current values from forms before storing
+                saveCourseDetails();
+                saveApiKey();
+                saveSyllabusAndOutcomes();
+                updateMappingState();
+                updateDistributionState();
                 
-                // Populate form fields
-                document.getElementById("course-code").value = courseData.code || '';
-                document.getElementById("course-title").value = courseData.title || '';
-                document.getElementById("credits").value = courseData.credits || '';
-                document.getElementById("department").value = courseData.department || '';
-                document.getElementById("course-description").value = courseData.description || '';
-            }
-            
-            // Load API key
-            const savedApiKey = localStorage.getItem("qbg_api_key");
-            if (savedApiKey) {
-                apiKey = savedApiKey;
-                document.getElementById("api-key-input").value = apiKey;
-                document.getElementById("api-key-status").classList.remove("hidden");
-            }
-            
-            // Load syllabus data
-            const savedSyllabusData = localStorage.getItem("qbg_syllabus_data");
-            if (savedSyllabusData) {
-                syllabusData = JSON.parse(savedSyllabusData);
-                
-                // Populate units
-                const unitsContainer = document.getElementById("units-container");
-                unitsContainer.innerHTML = '';
-                
-                syllabusData.units.forEach(unit => {
-                    const unitHtml = `
-                        <div class="unit-container" data-unit="${unit.number}">
-                            <h4 class="text-md font-semibold mb-2">Unit ${unit.number}</h4>
-                            
-                            <div class="mb-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="unit-${unit.number}-title">Unit Title</label>
-                                <input type="text" id="unit-${unit.number}-title" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., Introduction to Programming" value="${unit.title || ''}">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="unit-${unit.number}-topics">Topics (one per line)</label>
-                                <textarea id="unit-${unit.number}-topics" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="4" placeholder="e.g., Variables and Data Types">${unit.topics ? unit.topics.join('\n') : ''}</textarea>
-                            </div>
-                        </div>
-                    `;
-                    
-                    unitsContainer.insertAdjacentHTML("beforeend", unitHtml);
-                });
-                
-                // Populate outcomes
-                const outcomesContainer = document.getElementById("outcomes-container");
-                outcomesContainer.innerHTML = '';
-                
-                syllabusData.outcomes.forEach(outcome => {
-                    const outcomeHtml = `
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="co${outcome.number}">Course Outcome ${outcome.number} (CO${outcome.number})</label>
-                            <textarea id="co${outcome.number}" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="2" placeholder="Description">${outcome.description || ''}</textarea>
-                        </div>
-                    `;
-                    
-                    outcomesContainer.insertAdjacentHTML("beforeend", outcomeHtml);
-                });
-            }
-            
-            // Load mapping data
-            const savedMappingData = localStorage.getItem("qbg_mapping_data");
-            if (savedMappingData) {
-                mappingData = JSON.parse(savedMappingData);
-                updateMappingTable();
-            }
-            
-            // Load distribution data
-            const savedDistributionData = localStorage.getItem("qbg_distribution_data");
-            if (savedDistributionData) {
-                distributionData = JSON.parse(savedDistributionData);
-                updateDistributionTable();
+                localStorage.setItem('questionBankGenerator', JSON.stringify(appState));
+                showNotification('Application state saved successfully!', 'success');
+            } catch (error) {
+                console.error('Save error:', error);
+                showNotification('Error saving application state: ' + error.message, 'error');
             }
         }
         
-        // Show a toast notification
-        function showToast(message) {
-            // Check if a toast container exists
-            let toastContainer = document.querySelector('.toast-container');
+        function loadStateFromLocalStorage() {
+            try {
+                const savedState = localStorage.getItem('questionBankGenerator');
+                
+                if (!savedState) {
+                    console.log('No saved state found');
+                    return;
+                }
+                
+                const parsedState = JSON.parse(savedState);
+                
+                // Merge saved state with current state
+                Object.assign(appState, parsedState);
+                
+                // Update UI with loaded state
+                loadCourseDetails();
+                loadApiKey();
+                loadSyllabusAndOutcomes();
+                loadMapping();
+                loadDistribution();
+                loadGeneratedQuestions();
+                
+                showNotification('Application state loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Load error:', error);
+                showNotification('Error loading application state: ' + error.message, 'error');
+            }
+        }
+        
+        function loadCourseDetails() {
+            const details = appState.courseDetails;
             
-            // Create one if it doesn't exist
-            if (!toastContainer) {
-                toastContainer = document.createElement('div');
-                toastContainer.className = 'toast-container fixed bottom-4 right-4 z-50';
-                document.body.appendChild(toastContainer);
+            document.getElementById('courseCode').value = details.courseCode || '';
+            document.getElementById('courseTitle').value = details.courseTitle || '';
+            document.getElementById('credits').value = details.credits || '';
+            document.getElementById('department').value = details.department || '';
+            document.getElementById('courseDescription').value = details.courseDescription || '';
+        }
+        
+        function loadApiKey() {
+            document.getElementById('apiKey').value = appState.apiKey || '';
+            
+            if (appState.apiKeyValidated) {
+                showApiKeyStatus('API key is valid!', 'success');
+            }
+        }
+        
+        function loadSyllabusAndOutcomes() {
+            // Clear existing units and outcomes
+            document.getElementById('unitsContainer').innerHTML = '';
+            document.getElementById('outcomesContainer').innerHTML = '';
+            
+            // Load units
+            appState.units.forEach((unit, index) => {
+                const unitItem = createUnitItem(index + 1);
+                document.getElementById('unitsContainer').appendChild(unitItem);
+                
+                unitItem.querySelector('.unit-title').value = unit.title || '';
+                unitItem.querySelector('.unit-topics').value = unit.topics || '';
+                
+                attachUnitEventListeners(unitItem, index);
+            });
+            
+            // Load outcomes
+            appState.outcomes.forEach((outcome, index) => {
+                const outcomeItem = createOutcomeItem(index + 1);
+                document.getElementById('outcomesContainer').appendChild(outcomeItem);
+                
+                outcomeItem.querySelector('.outcome-description').value = outcome.description || '';
+                
+                attachOutcomeEventListeners(outcomeItem, index);
+            });
+        }
+        
+        function loadMapping() {
+            // Clear existing mapping rows
+            document.querySelector('#mappingTable tbody').innerHTML = '';
+            
+            // Load mapping rows
+            appState.mappingRows.forEach(row => {
+                addMappingRow(row);
+            });
+        }
+        
+        function loadDistribution() {
+            // Clear existing distribution rows
+            document.querySelector('#distributionTable tbody').innerHTML = '';
+            
+            // Load distribution rows
+            appState.distributionRows.forEach(row => {
+                addDistributionRow(row);
+            });
+            
+            // Update stats and chart
+            updateDistributionStats();
+            updateDistributionChart();
+            
+            // Update question filters
+            updateQuestionFilters();
+        }
+        
+        function loadGeneratedQuestions() {
+            // Clear existing questions
+            document.getElementById('questionsContainer').innerHTML = '';
+            
+            // Load generated questions
+            appState.generatedQuestions.forEach(question => {
+                displayQuestion(question);
+            });
+        }
+        
+        // Utility function for notifications
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md shadow-md transition-opacity duration-500 z-50`;
+            
+            // Set colors based on notification type
+            switch (type) {
+                case 'success':
+                    notification.classList.add('bg-green-500', 'text-white');
+                    break;
+                case 'error':
+                    notification.classList.add('bg-red-500', 'text-white');
+                    break;
+                case 'info':
+                    notification.classList.add('bg-blue-500', 'text-white');
+                    break;
+                default:
+                    notification.classList.add('bg-gray-700', 'text-white');
             }
             
-            // Create the toast
-            const toast = document.createElement('div');
-            toast.className = 'bg-blue-500 text-white px-4 py-2 rounded-md shadow-lg mb-2 transform transition-all duration-300 translate-y-0 opacity-100';
-            toast.textContent = message;
+            notification.textContent = message;
             
-            // Add it to the container
-            toastContainer.appendChild(toast);
+            // Add to document
+            document.body.appendChild(notification);
             
-            // Remove it after a delay
+            // Remove after 4 seconds
             setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
+                notification.style.opacity = '0';
                 setTimeout(() => {
-                    toast.remove();
-                }, 300);
-            }, 3000);
+                    notification.remove();
+                }, 500);
+            }, 4000);
         }
     </script>
 </body>
